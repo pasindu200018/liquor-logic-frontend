@@ -19,13 +19,15 @@ interface IRoutesProps {}
 
 const AllRoutes = (props: IRoutesProps) => {
 	const { settings } = useThemeContext()
+	const { isAuthenticated } = useAuthContext()
+
 
 	const Layout =
 		settings.layout.type === ThemeSettings.layout.type.vertical
 			? VerticalLayout
 			: HorizontalLayout
 	// const api = new APICore()
-	const { isAuthenticated } = useAuthContext()
+
 	return (
 		<React.Fragment>
 			<Routes>
@@ -49,7 +51,7 @@ const AllRoutes = (props: IRoutesProps) => {
 								isAuthenticated === false ? (
 									<Navigate
 										to={{
-											pathname: '/auth/login',
+											pathname: '/',
 											search: 'next=' + route.path,
 										}}
 									/>

@@ -7,13 +7,17 @@ import {
 	Modal,
 	Row,
 	Form,
+	Spinner,
 } from 'react-bootstrap'
 import { useModal, useToggle } from '@/hooks'
 
 import { Table } from 'react-bootstrap'
+import { toast } from "react-toastify";
 
 import { useState } from 'react'
 import { Typeahead } from 'react-bootstrap-typeahead'
+import { useRegisterMutation } from '@/api/AuthSlice'
+import { useGetAllUserQuery } from '@/api/UserSlice';
 
 interface TableRecord {
 	id: number
@@ -77,20 +81,67 @@ const Manage = () => {
 	const [multiSelections, setMultiSelections] = useState<any>([])
 	const [isStandardOpen, toggleStandard] = useToggle()
 
+	const [firstName, setFirstName] = useState<String>()
+	const [lastName, setLastName] = useState<String>()
+	const [email, setEmail] = useState<String>()
+	const [contact, setContact] = useState<String>()
+	const [status, setStatus] = useState<String>("deactive")
+	const [type, setType] = useState<String>("user")
+	const [username, setUsername] = useState<String>()
+	const [password, setPassword] = useState<String>()
+
+	const [register, { isLoading : registerLoading, isError :registerError }] = useRegisterMutation();
+	const { data:AllUser, isLoading: isAllUser , refetch:AllUserReFetch } = useGetAllUserQuery()
+	
+	console.log(AllUser)
+	const handleSignUp = async () => {
+		if (!firstName || !lastName || !email || !contact || !status || !type || !username || !password) {
+			toast.error("All fields are required");
+			return;
+		}
+        const userData = {
+            firstName,
+            lastName,
+            email,
+            contact,
+            status,
+            type,
+            username,
+            password,
+        };
+
+        try {
+            const response = await register(userData).unwrap();
+            console.log('User registered successfully:', response);
+			if(response){
+				toast.success("User Added");
+				AllUserReFetch()
+			}
+			if(registerError){
+				toast.error("Sever Error")
+				return;
+			}
+        } catch (err) {
+            console.error('Failed to register user:', err);
+			toast.error("Sever Error")
+			return;
+        }
+    };
+
 	const {
 		isOpen,
 		size,
-		className,
+		// className,
 		scroll,
 		toggleModal,
-		openModalWithSize,
+		// openModalWithSize,
 		openModalWithClass,
-		openModalWithScroll,
+		// openModalWithScroll,
 	} = useModal()
 
-	const filterToggleHandler = () => {
-		setFilterToggle(!filterToggle)
-	}
+	// const filterToggleHandler = () => {
+	// 	setFilterToggle(!filterToggle)
+	// }
 	const onChangeMultipleSelection = (selected: any) => {
 		setMultiSelections(selected)
 	}
@@ -106,7 +157,7 @@ const Manage = () => {
 					{/* <Button className="btn-outline-primary" onClick={filterToggleHandler}>
 						<i className="ri-equalizer-line me-1" /> filter
 					</Button> */}
-					<form>
+					{/* <form>
 						<div className="input-group">
 							<input
 								type="search"
@@ -114,7 +165,7 @@ const Manage = () => {
 								placeholder="Search..."
 							/>
 						</div>
-					</form>
+					</form> */}
 				</div>
 			</div>
 
@@ -205,9 +256,9 @@ const Manage = () => {
 			{/* filter  */}
 
 			{/* Data table  */}
-
 			<Card className="mt-3">
 				<Card.Header className="d-flex justify-content-between">
+			
 					<div>
 						<h4 className="header-title">User Tabel</h4>
 					</div>
@@ -222,29 +273,24 @@ const Manage = () => {
 						<thead>
 							<tr>
 								<th scope="col">ID</th>
-								<th scope="col"> Cashier Name</th>
+								<th scope="col">Cashier Name</th>
 								<th scope="col">Mobile Number</th>
+								<th scope="col">Role</th>
+								<th scope="col">Status</th>
 								<th scope="col">Action</th>
 							</tr>
 						</thead>
 						<tbody>
-							{(records || []).slice(0, 3).map((record, idx) => {
+							{(AllUser || []).map((data, index) => {
 								return (
-									<tr key={idx}>
-										<td>12</td>
-										<td>Imalka ththmi</td>
+									<tr key={index}>
+										<td>{index + 1}</td>
+										<td>{data?.firstName}{' '}{data?.lastName}</td>
 										<td>
-											<Typeahead
-												id="multi"
-												labelKey={'label'}
-												multiple
-												onChange={onChangeMultipleSelection}
-												options={states}
-												placeholder="Basic Example"
-												selected={multiSelections}
-											/>
+											{data?.contact}
 										</td>
-										<td>Edit Delete</td>
+										<td>{data?.type}</td>
+										<td>{data?.status}</td>
 									</tr>
 								)
 							})}
@@ -252,6 +298,7 @@ const Manage = () => {
 					</Table>
 				</Card.Body>
 			</Card>
+			{/* Data table  */}
 			{/* model  */}
 			<Modal
 				className="fade"
@@ -270,109 +317,123 @@ const Manage = () => {
 								<Row>
 									<Col lg={12}>
 										<FormInput
-											label="Name"
+											label="Firstname"
 											type="text"
-											name="text"
+											name="firstname"
 											containerClass="mb-3"
 											// register={register}
 											key="text"
 											// errors={errors}
 											// control={control}
+											onChange={(e) => setFirstName(e.target.value)}
 										/>
 									</Col>
 									<Col lg={12}>
 										<FormInput
-											label="Brand"
+											label="Lastname"
 											type="text"
-											name="text"
+											name="lastname"
 											containerClass="mb-3"
 											// register={register}
 											key="text"
 											// errors={errors}
 											// control={control}
+											onChange={(e) => setLastName(e.target.value)}
 										/>
 									</Col>
-									<Col lg={6}>
+									<Col lg={12}>
 										<FormInput
-											label="QTY"
-											type="Number"
-											name="text"
+											label="Username"
+											type="text"
+											name="username"
 											containerClass="mb-3"
 											// register={register}
 											key="text"
-											// errors={errors}
+											// errors={true}
 											// control={control}
+											onChange={(e) => setUsername(e.target.value)}
 										/>
 									</Col>
-									<Col lg={6}>
-												<FormInput
-													label="Unit Price"
-													type="number"
-													name="text"
-													containerClass="mb-3"
-													// register={register}
-													key="text"
-													// errors={errors}
-													// control={control}
-												/>
-											</Col>
-											<Col lg={6}>
+									<Col lg={12}>
 										<FormInput
-											label="Manufacture Date"
-											type="date"
-											name="text"
+											label="Password"
+											type="text"
+											name="password"
+											containerClass="mb-3"
+											// register={register}
+											key="text"
+											// errors={true}
+											// control={control}
+											onChange={(e) => setPassword(e.target.value)}
+										/>
+									</Col>
+									<Col lg={12}>
+										<FormInput
+											label="Email"
+											type="email"
+											name="email"
 											containerClass="mb-3"
 											// register={register}
 											key="text"
 											// errors={errors}
 											// control={control}
+											onChange={(e) => setEmail(e.target.value)}
 										/>
 									</Col>
-									<Col lg={6}>
-												<FormInput
-													label="Expire Date"
-													type="date"
-													name="text"
-													containerClass="mb-3"
-													// register={register}
-													key="text"
-													// errors={errors}
-													// control={control}
-												/>
-											</Col>
-									{/* <Col lg={6}>
-										<h5>Brand</h5>
-										<FloatingLabel
-											controlId="floatingSelect"
-											label="Payment Method"
-											className="mb-3">
-											<Form.Select aria-label="Floating label select example">
-												<option defaultValue="selected">Cash</option>
-												<option defaultValue="1">Card</option>
-												
-											</Form.Select>
-										</FloatingLabel>
-									</Col> */}
-									
-									<Col lg={12} className="">
-										<h5>
-											Description <span className="opacity-50">(optional)</span>
-										</h5>
-										<Row>
-											<Col lg={6}>
-												<FloatingLabel
-													controlId="floatingTextarea2"
-													label="Order Description">
-													<Form.Control
-														as="textarea"
-														placeholder="Leave a comment here"
-														style={{ height: '100px' }}
-													/>
-												</FloatingLabel>
-											</Col>
+
+									<Col lg={12}>
+										<FormInput
+											label="Contact"
+											type="text"
+											name="Contact"
+											containerClass="mb-3"
+											// register={register}
+											key="text"
+											// errors={errors}
+											// control={control}
+											onChange={(e) => setContact(e.target.value)}
+										/>
+									</Col>
+									<Col lg={12}>
+										<FormInput
+											name="Role"
+											label="Role"
+											type="select"
+											containerClass="mb-3"
+											className="form-select"
+											// register={register}
+											key="select"
+											// errors={errors}
+											// control={control}
+											onChange={(e) => setType(e.target.value)}
+											>
+											<option defaultValue="selected">user</option>
+											<option>admin</option>
+											<option>manager</option>
 											
-										</Row>
+										</FormInput>
 									</Col>
+									<Col lg={12}>
+										<FormInput
+											name="Status"
+											label="Status"
+											type="select"
+											containerClass="mb-3"
+											className="form-select"
+											// register={register}
+											key="select"
+											// errors={errors}
+											// control={control}
+											onChange={(e) => setStatus(e.target.value)}
+											>
+											<option defaultValue="selected">deactive</option>
+											<option>active</option>
+											<option>delete</option>
+											<option>band</option>
+											
+										</FormInput>
+									</Col>
+									
 								</Row>
 							</Col>
 
@@ -387,8 +448,9 @@ const Manage = () => {
 					{/* <Button variant="primary" onClick={toggleStandard}>
 						Print
 					</Button> */}
-					<Button variant="primary" onClick={toggleStandard}>
-						Save
+					<Button variant="primary" onClick={handleSignUp}>
+						{registerLoading ? (<Spinner className="" size="sm" />) : "Save"}
+					
 					</Button>
 				</Modal.Footer>
 			</Modal>

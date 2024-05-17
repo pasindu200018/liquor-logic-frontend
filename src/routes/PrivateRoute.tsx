@@ -11,6 +11,7 @@ import { useAuthContext } from '@/common'
 
 const PrivateRoute = ({ component: Component, roles, ...rest }: any) => {
 	const { isAuthenticated } = useAuthContext()
+	
 	return (
 		<Route
 			{...rest}
