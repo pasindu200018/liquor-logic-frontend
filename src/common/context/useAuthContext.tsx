@@ -20,6 +20,7 @@ export function useAuthContext() {
 const authSessionKey = '_VELONIC_AUTH'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+	
 	const [user, setUser] = useState(
 		localStorage.getItem(authSessionKey)
 			? JSON.parse(localStorage.getItem(authSessionKey) || '{}')
