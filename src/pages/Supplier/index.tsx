@@ -41,6 +41,7 @@ const Supplier = () => {
 	const [password, setPassword] = useState<String>()
 
 	const [register, { isLoading : registerLoading, isError :registerError ,isSuccess:registerSuccess }] = useRegisterMutation();
+
 	const { data: AllUser, refetch: AllUserReFetch } = useGetAllSupplierQuery()
 
 	const handleSignUp = async () => {
@@ -50,7 +51,7 @@ const Supplier = () => {
 			return;
 		}
 
-		const userData = {
+		const SupplyData = {
 			firstName,
 			lastName,
 			email,
@@ -61,30 +62,30 @@ const Supplier = () => {
 			password,
 		};
 	
-		try {
-			const result = await register(userData).then(
-			);
+		// try {
+		// 	// const result = await register(userData).then(
+		// 	// );
 			
 			
-			if (result.data) {
-				AllUserReFetch();
-				setFirstName('');
-				setLastName('');
-				setEmail('');
-				setContact('');
-				setStatus('deactive');
-				setType('user');
-				setUsername('');
-				setPassword('');
-				toast.success("User Added");
-				setIsModelOpen(false)
-			} else if (result.error) {
-				toast.error("Server Error");
-			}
-		} catch (err) {
-			console.error('Failed to register user:', err);
-			toast.error("Server Error");
-		}
+		// 	if (result.data) {
+		// 		AllUserReFetch();
+		// 		setFirstName('');
+		// 		setLastName('');
+		// 		setEmail('');
+		// 		setContact('');
+		// 		setStatus('deactive');
+		// 		setType('user');
+		// 		setUsername('');
+		// 		setPassword('');
+		// 		toast.success("User Added");
+		// 		setIsModelOpen(false)
+		// 	} else if (result.error) {
+		// 		toast.error("Server Error");
+		// 	}
+		// } catch (err) {
+		// 	console.error('Failed to register user:', err);
+		// 	toast.error("Server Error");
+		// }
 	};
 	
 	
