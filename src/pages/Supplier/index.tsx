@@ -3,103 +3,122 @@ import {
 	Button,
 	Card,
 	Col,
-	Row,
-	Form,
-	FloatingLabel,
+
 	Modal,
+	Row,
+
+	Spinner,
 } from 'react-bootstrap'
-import { employeeRecords } from './data'
-import { Column } from 'react-table'
-import { PageSize, Table } from '@/components'
-import { useState } from 'react'
 import { useModal, useToggle } from '@/hooks'
 
-type Employee = {
-	id: number
-	age: number
-	name: string
-	company: string
-	phone: string
-	subRows?: Employee[]
-}
+import { Table } from 'react-bootstrap'
+import { toast } from "react-toastify";
 
-const columns: ReadonlyArray<Column> = [
-	{
-		Header: 'ID',
-		accessor: 'id',
-		defaultCanSort: true,
-	},
-	{
-		Header: 'Name',
-		accessor: 'name',
-		defaultCanSort: true,
-	},
-	{
-		Header: 'Phone Number',
-		accessor: 'phone',
-		defaultCanSort: false,
-	},
-	{
-		Header: 'Age',
-		accessor: 'age',
-		defaultCanSort: true,
-	},
-	{
-		Header: 'Company',
-		accessor: 'company',
-		defaultCanSort: false,
-	},
-]
-const sizePerPageList: PageSize[] = [
-	{
-		text: '5',
-		value: 5,
-	},
-	{
-		text: '10',
-		value: 10,
-	},
-	{
-		text: '25',
-		value: 25,
-	},
-	{
-		text: 'All',
-		value: employeeRecords.length,
-	},
-]
+import { useState } from 'react'
+
+import { useRegisterMutation } from '@/api/AuthSlice'
+import { useGetAllUserQuery } from '@/api/UserSlice';
+import { useGetAllSupplierQuery } from '@/api/supplierSlice';
+
+
+
+
+
 
 const Supplier = () => {
+	const [filterToggle, setFilterToggle] = useState(false)
+	const [multiSelections, setMultiSelections] = useState<any>([])
 	const [isStandardOpen, toggleStandard] = useToggle()
+	const [isModelOpen, setIsModelOpen] =  useState(false)
+
+	const [firstName, setFirstName] = useState<String>()
+	const [lastName, setLastName] = useState<String>()
+	const [email, setEmail] = useState<String>()
+	const [contact, setContact] = useState<String>()
+	const [status, setStatus] = useState<String>("deactive")
+	const [type, setType] = useState<String>("user")
+	const [username, setUsername] = useState<String>()
+	const [password, setPassword] = useState<String>()
+
+	const [register, { isLoading : registerLoading, isError :registerError ,isSuccess:registerSuccess }] = useRegisterMutation();
+	const { data: AllUser, refetch: AllUserReFetch } = useGetAllSupplierQuery()
+
+	const handleSignUp = async () => {
+
+		if (!firstName || !lastName || !email || !contact || !status || !type || !username || !password) {
+			toast.error("All fields are required");
+			return;
+		}
+
+		const userData = {
+			firstName,
+			lastName,
+			email,
+			contact,
+			status,
+			type,
+			username,
+			password,
+		};
+	
+		try {
+			const result = await register(userData).then(
+			);
+			
+			
+			if (result.data) {
+				AllUserReFetch();
+				setFirstName('');
+				setLastName('');
+				setEmail('');
+				setContact('');
+				setStatus('deactive');
+				setType('user');
+				setUsername('');
+				setPassword('');
+				toast.success("User Added");
+				setIsModelOpen(false)
+			} else if (result.error) {
+				toast.error("Server Error");
+			}
+		} catch (err) {
+			console.error('Failed to register user:', err);
+			toast.error("Server Error");
+		}
+	};
+	
+	
 
 	const {
 		isOpen,
 		size,
-		className,
+		// className,
 		scroll,
 		toggleModal,
-		openModalWithSize,
+		// openModalWithSize,
 		openModalWithClass,
-		openModalWithScroll,
+		// openModalWithScroll,
 	} = useModal()
 
-	const [filterToggle, setFilterToggle] = useState(false)
-
-	const filterToggleHandler = () => {
-		setFilterToggle(!filterToggle)
+	// const filterToggleHandler = () => {
+	// 	setFilterToggle(!filterToggle)
+	// }
+	const onChangeMultipleSelection = (selected: any) => {
+		setMultiSelections(selected)
 	}
+
 	return (
 		<>
-			<PageBreadcrumb title="Supplier" subName="Dashboards" />
+			<PageBreadcrumb title="Supplier" subName="User" />
 
 			<div
 				className="d-flex justify-content-between"
 				style={{ marginTop: '10px' }}>
 				<div className="d-flex gap-1">
-					<Button className="btn-outline-primary" onClick={filterToggleHandler}>
+					{/* <Button className="btn-outline-primary" onClick={filterToggleHandler}>
 						<i className="ri-equalizer-line me-1" /> filter
-					</Button>
-					<form>
+					</Button> */}
+					{/* <form>
 						<div className="input-group">
 							<input
 								type="search"
@@ -107,152 +126,61 @@ const Supplier = () => {
 								placeholder="Search..."
 							/>
 						</div>
-					</form>
+					</form> */}
 				</div>
-				{/* <div className="d-flex gap-1">
-				<Button variant="danger">
-						<i className="ri-save-fill me-1" /> <span>PDF</span>
-					</Button>
-					<Button variant="danger">
-						<i className="ri-save-fill me-1" /> <span>Print</span>
-					</Button>
-					<Button variant="success">
-						<i className="ri-rocket-line me-1" /> <span>WORD</span>
-					</Button>
-				</div> */}
 			</div>
 
-			{/* filter  */}
-			<Card className={`mt-3 ${!filterToggle ? 'd-none' : ''}`}>
-				<Card.Header>
-					<div className="grid-container">
-						<Row className="grid-container">
-							<Col lg={4}>
-								<FormInput
-									label="To Date"
-									type="date"
-									name="date"
-									containerClass="mb-3"
-									// register={register}
-									key="date"
-									// errors={errors}
-									// control={control}
-								/>
-							</Col>
-							<Col lg={4}>
-								<FormInput
-									label="From Date"
-									type="date"
-									name="date"
-									containerClass="mb-3"
-									// register={register}
-									key="date"
-									// errors={errors}
-									// control={control}
-								/>
-							</Col>
-
-							<Col lg={4}>
-								<FormInput
-									label="From Date"
-									type="date"
-									name="date"
-									containerClass="mb-3"
-									// register={register}
-									key="date"
-									// errors={errors}
-									// control={control}
-								/>
-							</Col>
-							<Col lg={6}>
-								<FormInput
-									name="select"
-									label="Cashier"
-									type="select"
-									containerClass="mb-3"
-									className="form-select"
-									// register={register}
-									key="select"
-									// errors={errors}
-									// control={control}
-								>
-									<option defaultValue="selected">1</option>
-									<option>2</option>
-									<option>3</option>
-									<option>4</option>
-									<option>5</option>
-								</FormInput>
-							</Col>
-							<Col lg={6}>
-								<FormInput
-									name="select"
-									label="Input Select"
-									type="select"
-									containerClass="mb-3"
-									className="form-select"
-									// register={register}
-									key="select"
-									// errors={errors}
-									// control={control}
-								>
-									<option defaultValue="selected">1</option>
-									<option>2</option>
-									<option>3</option>
-									<option>4</option>
-									<option>5</option>
-								</FormInput>
-							</Col>
-						</Row>
-					</div>
-				</Card.Header>
-			</Card>
-			{/* filter end */}
+			
 
 			{/* Data table  */}
-			<div className="mt-3">
-				<Row>
-					<Col>
-						<Card>
-							<Card.Header className="d-flex  justify-content-between">
-								<div>
-									<h4 className="header-title">Pagination &amp; Sort</h4>
-									<p className="text-muted mb-0">
-										A simple example of table with pagination and column sorting
-									</p>
-								</div>
-								<div>
-									<Button
-										className="btn-outline-dark"
-										onClick={() => openModalWithClass('modal-full-width')}>
-										<i className="ri-folder-user-line me-1" /> Add Supplier
-									</Button>
-								</div>
-							</Card.Header>
-							<Card.Body>
-								<Table<Employee>
-									columns={columns}
-									data={employeeRecords}
-									pageSize={5}
-									sizePerPageList={sizePerPageList}
-									isSortable={true}
-									pagination={true}
-								/>
-							</Card.Body>
-						</Card>
-					</Col>
-				</Row>
-			</div>
-
+			<Card className="mt-3">
+				<Card.Header className="d-flex justify-content-between">
+			
+					<div>
+						<h4 className="header-title">Supplier Tabel</h4>
+					</div>
+					<Button
+						className="btn-outline-dark"
+						onClick={() => setIsModelOpen(true)}>
+						<i className="ri-user-add-line me-1" /> Add Supplier
+					</Button>
+				</Card.Header>
+				<Card.Body>
+					<Table responsive className="mb-0">
+						<thead>
+							<tr>
+								<th scope="col">ID</th>
+								<th scope="col">Cashier Name</th>
+								<th scope="col">Mobile Number</th>
+								<th scope="col">Role</th>
+								<th scope="col">Status</th>
+								<th scope="col">Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							{(AllUser || []).map((data, index) => {
+								return (
+									<tr key={index}>
+										<td>123</td>
+										
+									</tr>
+								)
+							})}
+						</tbody>
+					</Table>
+				</Card.Body>
+			</Card>
+			{/* Data table  */}
 			{/* model  */}
 			<Modal
 				className="fade"
-				show={isOpen}
+				show={isModelOpen}
 				onHide={toggleModal}
 				dialogClassName="lg"
 				size={size}
 				scrollable={scroll}>
-				<Modal.Header onHide={toggleStandard} closeButton>
-					<Modal.Title as="h4">Add Supplier</Modal.Title>
+				<Modal.Header onHide={toggleStandard} >
+					<Modal.Title as="h4">Add Inventory</Modal.Title>
 				</Modal.Header>
 				<Modal.Body>
 					<div className="grid-structure">
@@ -261,107 +189,123 @@ const Supplier = () => {
 								<Row>
 									<Col lg={12}>
 										<FormInput
-											label="Supplier Name"
+											label="Firstname"
 											type="text"
-											name="text"
+											name="firstname"
 											containerClass="mb-3"
+											// register={register}
 											key="text"
+											// errors={errors}
+											// control={control}
+											onChange={(e) => setFirstName(e.target.value)}
+										/>
+									</Col>
+									<Col lg={12}>
+										<FormInput
+											label="Lastname"
+											type="text"
+											name="lastname"
+											containerClass="mb-3"
+											// register={register}
+											key="text"
+											// errors={errors}
+											// control={control}
+											onChange={(e) => setLastName(e.target.value)}
+										/>
+									</Col>
+									<Col lg={12}>
+										<FormInput
+											label="Username"
+											type="text"
+											name="username"
+											containerClass="mb-3"
+											// register={register}
+											key="text"
+											// errors={true}
+											// control={control}
+											onChange={(e) => setUsername(e.target.value)}
+										/>
+									</Col>
+									<Col lg={12}>
+										<FormInput
+											label="Password"
+											type="text"
+											name="password"
+											containerClass="mb-3"
+											// register={register}
+											key="text"
+											// errors={true}
+											// control={control}
+											onChange={(e) => setPassword(e.target.value)}
 										/>
 									</Col>
 									<Col lg={12}>
 										<FormInput
 											label="Email"
-											type="text"
-											name="text"
+											type="email"
+											name="email"
 											containerClass="mb-3"
+											// register={register}
 											key="text"
+											// errors={errors}
+											// control={control}
+											onChange={(e) => setEmail(e.target.value)}
 										/>
 									</Col>
-									<Col lg={6}>
+
+									<Col lg={12}>
 										<FormInput
 											label="Contact"
-											type="Number"
-											name="text"
-											containerClass="mb-3"
-											key="text"
-										/>
-									</Col>
-									<Col lg={6}>
-										<FormInput
-											label="Status"
-											type="number"
-											name="text"
-											containerClass="mb-3"
-											key="text"
-
-										/>
-									</Col>
-									<Col lg={6}>
-										<FormInput
-											label="Status"
-											type="number"
-											name="text"
-											containerClass="mb-3"
-											key="text"
-
-										/>
-									</Col>
-									<Col lg={6}>
-										<FormInput
-											label="Manufacture Date"
-											type="date"
-											name="text"
+											type="text"
+											name="Contact"
 											containerClass="mb-3"
 											// register={register}
 											key="text"
 											// errors={errors}
 											// control={control}
+											onChange={(e) => setContact(e.target.value)}
 										/>
 									</Col>
-									<Col lg={6}>
+									<Col lg={12}>
 										<FormInput
-											label="Expire Date"
-											type="date"
-											name="text"
+											name="Role"
+											label="Role"
+											type="select"
 											containerClass="mb-3"
+											className="form-select"
 											// register={register}
-											key="text"
+											key="select"
 											// errors={errors}
 											// control={control}
-										/>
+											onChange={(e) => setType(e.target.value)}
+											>
+											<option defaultValue="selected">user</option>
+											<option>admin</option>
+											<option>manager</option>
+											
+										</FormInput>
 									</Col>
-									{/* <Col lg={6}>
-										<h5>Brand</h5>
-										<FloatingLabel
-											controlId="floatingSelect"
-											label="Payment Method"
-											className="mb-3">
-											<Form.Select aria-label="Floating label select example">
-												<option defaultValue="selected">Cash</option>
-												<option defaultValue="1">Card</option>
-												
-											</Form.Select>
-										</FloatingLabel>
-									</Col> */}
-
-									<Col lg={12} className="">
-										<h5>
-											Description <span className="opacity-50">(optional)</span>
-										</h5>
-										<Row>
-											<Col lg={6}>
-												<FloatingLabel
-													controlId="floatingTextarea2"
-													label="Order Description">
-													<Form.Control
-														as="textarea"
-														placeholder="Leave a comment here"
-														style={{ height: '100px' }}
-													/>
-												</FloatingLabel>
-											</Col>
-										</Row>
+									<Col lg={12}>
+										<FormInput
+											name="Status"
+											label="Status"
+											type="select"
+											containerClass="mb-3"
+											className="form-select"
+											// register={register}
+											key="select"
+											// errors={errors}
+											// control={control}
+											onChange={(e) => setStatus(e.target.value)}
+											>
+											<option defaultValue="selected">deactive</option>
+											<option>active</option>
+											<option>delete</option>
+											<option>band</option>
+											
+										</FormInput>
 									</Col>
+									
 								</Row>
 							</Col>
 
@@ -370,14 +314,15 @@ const Supplier = () => {
 					</div>
 				</Modal.Body>
 				<Modal.Footer>
-					<Button variant="light" onClick={toggleStandard}>
+					<Button variant="light" onClick={()=>setIsModelOpen(false)}>
 						Close
 					</Button>
 					{/* <Button variant="primary" onClick={toggleStandard}>
 						Print
 					</Button> */}
-					<Button variant="primary" onClick={toggleStandard}>
-						Save
+					<Button variant="primary" onClick={handleSignUp}>
+						{registerLoading ? (<Spinner className="" size="sm" />) : "Save"}
+					
 					</Button>
 				</Modal.Footer>
 			</Modal>

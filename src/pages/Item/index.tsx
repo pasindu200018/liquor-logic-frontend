@@ -8,6 +8,7 @@ import {
 	Row,
 	Form,
 	Table,
+	Spinner
 } from 'react-bootstrap'
 import { employeeRecords } from './data'
 import { Column } from 'react-table'
@@ -83,7 +84,7 @@ const Item = () => {
 	const [unitPrice, setUnitPrice] = useState('')
 	const [manufactureDate, setManufactureDate] = useState('')
 	const [expireDate, setExpireDate] = useState('')
-	const [userId, setUserId] = useState('454548')
+	const [userId, setUserId] = useState('177f61b8-3d99-44ff-aef5-2e6603ae039a')
 	const [supplierId, setSupplierId] = useState('')
 	const [description, setDescription] = useState('')
 	
@@ -116,8 +117,11 @@ const Item = () => {
 				setExpireDate('')
 				setSupplierId('')
 				setDescription('')
+				
+
 				toast.success("Item Added");
 				setIsModelOpen(false)
+				AllItemReFetch()
 			} else if (result.error) {
 				toast.error("Server Error");
 			}
@@ -449,9 +453,9 @@ const Item = () => {
 												<FloatingLabel
 													controlId="floatingTextarea2"
 													label="Order Description"
-														onChange={(e)=>setDescription(e.target.value)}
 													>
 													<Form.Control
+														onChange={(e)=>setDescription(e.target.value)}
 														as="textarea"
 														placeholder="Leave a comment here"
 														style={{ height: '100px' }}
@@ -469,13 +473,10 @@ const Item = () => {
 				</Modal.Body>
 				<Modal.Footer>
 					<Button variant="light" onClick={() => setIsModelOpen(false)}>
-						Close
+					Close
 					</Button>
-					{/* <Button variant="primary" onClick={toggleStandard}>
-						Print
-					</Button> */}
 					<Button variant="primary" onClick={handleItemSave}>
-						Save
+					{itemLoading? (<Spinner className="" size="sm" />) : "Save"}
 					</Button>
 				</Modal.Footer>
 			</Modal>
