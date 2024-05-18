@@ -7,13 +7,16 @@ import {
 	Modal,
 	Row,
 	Form,
+	Table,
 } from 'react-bootstrap'
 import { employeeRecords } from './data'
 import { Column } from 'react-table'
-import { PageSize, Table } from '@/components'
+import { PageSize } from '@/components'
 import { useState } from 'react'
 import { useModal, useToggle } from '@/hooks'
 
+import { useCreateAItemMutation, useGetAllItemQuery } from '@/api/ItemSlice'
+import { toast } from 'react-toastify'
 
 type Employee = {
 	id: number
@@ -69,10 +72,61 @@ const sizePerPageList: PageSize[] = [
 		value: employeeRecords.length,
 	},
 ]
-const Inventory = () => {
+const Item = () => {
 	const [isStandardOpen, toggleStandard] = useToggle()
-
+	const [isModelOpen, setIsModelOpen] = useState(false)
 	const [filterToggle, setFilterToggle] = useState(false)
+
+	const [name, setName] = useState('')
+	const [brand, setBrand] = useState('')
+	const [qty, setQty] = useState('')
+	const [unitPrice, setUnitPrice] = useState('')
+	const [manufactureDate, setManufactureDate] = useState('')
+	const [expireDate, setExpireDate] = useState('')
+	const [userId, setUserId] = useState('454548')
+	const [supplierId, setSupplierId] = useState('')
+	const [description, setDescription] = useState('')
+	
+	console.log(name, brand, qty, unitPrice, manufactureDate,expireDate, userId,supplierId,description)
+
+	const { data: AllItem, refetch: AllItemReFetch } = useGetAllItemQuery()
+	const [createAItem, { isLoading : itemLoading, isError :itemError ,isSuccess:itemSuccess }] = useCreateAItemMutation();
+
+
+	const handleItemSave = async () => {
+
+		if (!name || !brand || !qty || !unitPrice || !manufactureDate || !expireDate || !supplierId || !description) {
+			toast.error("All fields are required");
+			return;
+		}
+
+		const itemData = {
+			name, brand, qty, unitPrice, manufactureDate,expireDate, userId,supplierId,description
+		};
+	
+		try {
+			const result = await createAItem(itemData)
+			
+			if (result.data) {
+				setName('')
+				setBrand('')
+				setQty('')
+				setUnitPrice('')
+				setManufactureDate('')
+				setExpireDate('')
+				setSupplierId('')
+				setDescription('')
+				toast.success("Item Added");
+				setIsModelOpen(false)
+			} else if (result.error) {
+				toast.error("Server Error");
+			}
+		} catch (err) {
+			console.error('Failed to create item:', err);
+			toast.error("Server Error");
+		}
+	};
+
 
 
 
@@ -89,11 +143,9 @@ const Inventory = () => {
 	const filterToggleHandler = () => {
 		setFilterToggle(!filterToggle)
 	}
-
-
 	return (
 		<>
-			<PageBreadcrumb title="Inventory" subName="Dashboards" />
+			<PageBreadcrumb title="Items" subName="Dashboards" />
 
 			<div
 				className="d-flex justify-content-between"
@@ -213,49 +265,65 @@ const Inventory = () => {
 			{/* filter end */}
 
 			{/* Data table  */}
-			<div className="mt-3">
-				<Row>
-					<Col>
-						<Card>
-							<Card.Header className="d-flex  justify-content-between">
-								<div>
-									<h4 className="header-title">Pagination &amp; Sort</h4>
-									<p className="text-muted mb-0">
-										A simple example of table with pagination and column sorting
-									</p>
-								</div>
-								<div>
-									<Button
-										className="btn-outline-dark"
-										onClick={() => openModalWithClass('modal-full-width')}>
-										<i className="ri-store-2-line me-1" /> Add Inventory
-									</Button>
-								</div>
-							</Card.Header>
-							<Card.Body>
-								<Table<Employee>
-									columns={columns}
-									data={employeeRecords}
-									pageSize={5}
-									sizePerPageList={sizePerPageList}
-									isSortable={true}
-									pagination={true}
-								/>
-							</Card.Body>
-						</Card>
-					</Col>
-				</Row>
-			</div>
+			<Card className="mt-3">
+				<Card.Header className="d-flex justify-content-between">
+					<div>
+						<h4 className="header-title">Item table</h4>
+					</div>
+					<Button
+						className="btn-outline-dark"
+						onClick={() => setIsModelOpen(true)}>
+						<i className="ri-user-add-line me-1" /> Add Item
+					</Button>
+				</Card.Header>
+				<Card.Body>
+					<Table responsive className="mb-0">
+						<thead>
+							<tr>
+								<th scope="col">Name</th>
+								<th scope="col">Brand</th>
+								<th scope="col">QTY</th>
+								<th scope="col">Unit Price</th>
+								<th scope="col">M Date</th>
+								<th scope="col">E Date</th>
+							</tr>
+						</thead>
+						<tbody>
+							{(AllItem || []).map((data, index) => {
+								return (
+									<tr key={index}>
+										<td>{data?.name}</td>
+										<td>{data?.brand}</td>
+										<td>{data?.qty}</td>
+										<td>{data?.unitPrice}</td>
+										<td>
+											{
+												new Date(data?.manufactureDate)
+													.toISOString()
+													.split('T')[0]
+											}
+										</td>
+										<td>
+											{new Date(data?.expireDate).toISOString().split('T')[0]}
+										</td>
+									</tr>
+								)
+							})}
+						</tbody>
+					</Table>
+				</Card.Body>
+			</Card>
+			{/* Data table  */}
 
 			{/* model  */}
 			<Modal
 				className="fade"
-				show={isOpen}
+				show={isModelOpen}
 				onHide={toggleModal}
 				dialogClassName="lg"
 				size={size}
 				scrollable={scroll}>
-				<Modal.Header onHide={toggleStandard} closeButton>
+				<Modal.Header onHide={toggleStandard}>
 					<Modal.Title as="h4">Add Inventory</Modal.Title>
 				</Modal.Header>
 				<Modal.Body>
@@ -273,7 +341,25 @@ const Inventory = () => {
 											key="text"
 											// errors={errors}
 											// control={control}
+											onChange={(e)=>setName(e.target.value)}
 										/>
+									</Col>
+									<Col lg={12}>
+										<FormInput
+											name="select"
+											label="Suppler "
+											type="select"
+											containerClass="mb-3"
+											className="form-select"
+											key="select"
+											onChange={(e)=>setSupplierId(e.target.value)}
+											>
+											<option >177f61b8-3d99-44ff-aef5-2e6603ae039a</option>
+											<option>177f61b8-3d99-44ff-aef5-2e6603ae039a</option>
+											<option>177f61b8-3d99-44ff-aef5-2e6603ae039a</option>
+											<option>4</option>
+											<option>5</option>
+										</FormInput>
 									</Col>
 									<Col lg={12}>
 										<FormInput
@@ -283,6 +369,7 @@ const Inventory = () => {
 											containerClass="mb-3"
 											// register={register}
 											key="text"
+											onChange={(e)=>setBrand(e.target.value)}
 											// errors={errors}
 											// control={control}
 										/>
@@ -295,28 +382,18 @@ const Inventory = () => {
 											containerClass="mb-3"
 											// register={register}
 											key="text"
+											onChange={(e)=>setQty(e.target.value)}
 											// errors={errors}
 											// control={control}
 										/>
 									</Col>
 									<Col lg={6}>
-												<FormInput
-													label="Unit Price"
-													type="number"
-													name="text"
-													containerClass="mb-3"
-													// register={register}
-													key="text"
-													// errors={errors}
-													// control={control}
-												/>
-											</Col>
-											<Col lg={6}>
 										<FormInput
-											label="Manufacture Date"
-											type="date"
+											label="Unit Price"
+											type="number"
 											name="text"
 											containerClass="mb-3"
+											onChange={(e)=>setUnitPrice(e.target.value)}
 											// register={register}
 											key="text"
 											// errors={errors}
@@ -324,17 +401,31 @@ const Inventory = () => {
 										/>
 									</Col>
 									<Col lg={6}>
-												<FormInput
-													label="Expire Date"
-													type="date"
-													name="text"
-													containerClass="mb-3"
-													// register={register}
-													key="text"
-													// errors={errors}
-													// control={control}
-												/>
-											</Col>
+										<FormInput
+											label="Manufacture Date"
+											type="date"
+											name="text"
+											containerClass="mb-3"
+											// register={register}
+											key="text"
+											onChange={(e)=>setManufactureDate(e.target.value)}
+											// errors={errors}
+											// control={control}
+										/>
+									</Col>
+									<Col lg={6}>
+										<FormInput
+											label="Expire Date"
+											type="date"
+											name="text"
+											containerClass="mb-3"
+											// register={register}
+											key="text"
+											// errors={errors}
+											// control={control}
+											onChange={(e)=>setExpireDate(e.target.value)}
+										/>
+									</Col>
 									{/* <Col lg={6}>
 										<h5>Brand</h5>
 										<FloatingLabel
@@ -348,16 +439,18 @@ const Inventory = () => {
 											</Form.Select>
 										</FloatingLabel>
 									</Col> */}
-									
+
 									<Col lg={12} className="">
 										<h5>
-											Description <span className="opacity-50">(optional)</span>
+											Description 
 										</h5>
 										<Row>
 											<Col lg={6}>
 												<FloatingLabel
 													controlId="floatingTextarea2"
-													label="Order Description">
+													label="Order Description"
+														onChange={(e)=>setDescription(e.target.value)}
+													>
 													<Form.Control
 														as="textarea"
 														placeholder="Leave a comment here"
@@ -365,7 +458,6 @@ const Inventory = () => {
 													/>
 												</FloatingLabel>
 											</Col>
-											
 										</Row>
 									</Col>
 								</Row>
@@ -376,13 +468,13 @@ const Inventory = () => {
 					</div>
 				</Modal.Body>
 				<Modal.Footer>
-					<Button variant="light" onClick={toggleStandard}>
+					<Button variant="light" onClick={() => setIsModelOpen(false)}>
 						Close
 					</Button>
 					{/* <Button variant="primary" onClick={toggleStandard}>
 						Print
 					</Button> */}
-					<Button variant="primary" onClick={toggleStandard}>
+					<Button variant="primary" onClick={handleItemSave}>
 						Save
 					</Button>
 				</Modal.Footer>
@@ -392,4 +484,4 @@ const Inventory = () => {
 	)
 }
 
-export default Inventory
+export default Item

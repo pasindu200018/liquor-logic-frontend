@@ -44,6 +44,14 @@ const MENU_ITEMS: MenuItemTypes[] = [
 	
 	},
 	{
+		key: 'item',
+		label: 'Item',
+		isTitle: false,
+		url: '/item',
+		icon: 'ri-store-2-line',
+	
+	},
+	{
 		key: 'supplier',
 		label: 'Supplier',
 		isTitle: false,

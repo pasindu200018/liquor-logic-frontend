@@ -1,4 +1,4 @@
-import { USER_URL } from '../constants/api'
+import { API } from '../constants/api'
 import { apiSlice } from './apiSlice'
 
 export const authApiSlice = apiSlice.injectEndpoints({
@@ -6,13 +6,19 @@ export const authApiSlice = apiSlice.injectEndpoints({
 
 		getAllUser: builder.query({
 			query: () => ({
-				url: `${USER_URL}/getAllUsers`,
+				url: `${API.BASE_URL}${API.PORT.AD}${API.AUTH_URL }/getAllUsers`,
 				method: 'GET',
 			}),
 		}),
 		getAUser: builder.query({
 			query: (ID) => ({
-				url: `${USER_URL}/${ID}`,
+				url: `${API.BASE_URL}${API.PORT.AD}${API.AUTH_URL }/${ID}`,
+				method: 'GET',
+			}),
+		}),
+		deleteAUser: builder.query({
+			query: (ID) => ({
+				url: `${API.BASE_URL}${API.PORT.AD}${API.AUTH_URL }/${ID}`,
 				method: 'GET',
 			}),
 		}),

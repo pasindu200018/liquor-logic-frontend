@@ -5,6 +5,11 @@ import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
   base: '',
+  // root:'src',
+  // server: {
+  //   port: 3000,
+
+  // },
   plugins: [react(),],
   define: { 'process.env': {}, },
   resolve: {
