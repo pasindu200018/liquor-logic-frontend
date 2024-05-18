@@ -1,335 +1,265 @@
-import { FormInput, PageBreadcrumb } from '@/components'
+import { FormInput, PageBreadcrumb } from '@/components';
 import {
-	Button,
-	Card,
-	Col,
-
-	Modal,
-	Row,
-
-	Spinner,
-} from 'react-bootstrap'
-import { useModal, useToggle } from '@/hooks'
-
-import { Table } from 'react-bootstrap'
-import { toast } from "react-toastify";
-
-import { useState } from 'react'
-
-import { useRegisterMutation } from '@/api/AuthSlice'
-import { useGetAllUserQuery } from '@/api/UserSlice';
-import { useGetAllSupplierQuery } from '@/api/supplierSlice';
-
-
-
-
-
+  Button,
+  Card,
+  Col,
+  Modal,
+  Row,
+  Spinner,
+  Table,
+} from 'react-bootstrap';
+import { useModal, useToggle } from '@/hooks';
+import { toast } from 'react-toastify';
+import { useState } from 'react';
+import { useRegisterMutation } from '@/api/AuthSlice';
+import { useCreateASupplierMutation, useGetAllSupplierQuery } from '@/api/supplierSlice';
 
 const Supplier = () => {
-	const [filterToggle, setFilterToggle] = useState(false)
-	const [multiSelections, setMultiSelections] = useState<any>([])
-	const [isStandardOpen, toggleStandard] = useToggle()
-	const [isModelOpen, setIsModelOpen] =  useState(false)
+  const [filterToggle, setFilterToggle] = useState(false);
+  const [multiSelections, setMultiSelections] = useState([]);
+  const [isStandardOpen, toggleStandard] = useToggle();
+  const [isModelOpen, setIsModelOpen] = useState(false);
 
-	const [firstName, setFirstName] = useState<String>()
-	const [lastName, setLastName] = useState<String>()
-	const [email, setEmail] = useState<String>()
-	const [contact, setContact] = useState<String>()
-	const [status, setStatus] = useState<String>("deactive")
-	const [type, setType] = useState<String>("user")
-	const [username, setUsername] = useState<String>()
-	const [password, setPassword] = useState<String>()
+  const [item_id, setItem_id] = useState('177f61b8-3d99-44ff-aef5-2e6603ae039a')
+  const [supplier_name, setSupplierName] = useState('');
+  const [contact, setContact] = useState('');
+  const [email, setEmail] = useState('');
+  const [qty_received_items, setQtyReceivedItems] = useState('');
+  const [qty_returned_items, setQtyReturnedItems] = useState('');
+  const [total_qty, setTotalQty] = useState('');
+  const [buying_price, setBuyingPrice] = useState('');
+  const [payment, setPayment] = useState('');
+  const [status, setStatus] = useState('paid');
+  const [payment_method , setPayment_method] = useState('paid')
 
-	const [register, { isLoading : registerLoading, isError :registerError ,isSuccess:registerSuccess }] = useRegisterMutation();
+  const [createASupplier, { isLoading: registerLoading, isError: registerError, isSuccess: registerSuccess }] = useCreateASupplierMutation();
+  const { data: allSuppliers, refetch: allSuppliersReFetch } = useGetAllSupplierQuery();
 
-	const { data: AllUser, refetch: AllUserReFetch } = useGetAllSupplierQuery()
+  const handleAddSupplier = async () => {
+    if (!supplier_name || !contact || !email || !qty_received_items || !qty_returned_items || !total_qty || !buying_price || !payment || !status) {
+      toast.error('All fields are required');
+      return;
+    }
 
-	const handleSignUp = async () => {
+    const supplyData = {
+		item_id,
+	supplier_name,
+      contact,
+      email,
+	  status,
+      qty_received_items,
+      qty_returned_items,
+      total_qty,
+      buying_price,
+      payment,
+	  payment_method
+    };
 
-		if (!firstName || !lastName || !email || !contact || !status || !type || !username || !password) {
-			toast.error("All fields are required");
-			return;
-		}
+    try {
+      const result = await createASupplier(supplyData);
+      if (result.data) {
+        allSuppliersReFetch();
+        setSupplierName('');
+        setContact('');
+        setEmail('');
+        setQtyReceivedItems('');
+        setQtyReturnedItems('');
+        setTotalQty('');
+        setBuyingPrice('');
+        toast.success('Supplier Added');
+        setIsModelOpen(false);
+      } else if (result.error) {
+        toast.error('Server Error');
+      }
+    } catch (err) {
+      console.error('Failed to register supplier:', err);
+      toast.error('Server Error');
+    }
+  };
 
-		const SupplyData = {
-			firstName,
-			lastName,
-			email,
-			contact,
-			status,
-			type,
-			username,
-			password,
-		};
-	
-		// try {
-		// 	// const result = await register(userData).then(
-		// 	// );
-			
-			
-		// 	if (result.data) {
-		// 		AllUserReFetch();
-		// 		setFirstName('');
-		// 		setLastName('');
-		// 		setEmail('');
-		// 		setContact('');
-		// 		setStatus('deactive');
-		// 		setType('user');
-		// 		setUsername('');
-		// 		setPassword('');
-		// 		toast.success("User Added");
-		// 		setIsModelOpen(false)
-		// 	} else if (result.error) {
-		// 		toast.error("Server Error");
-		// 	}
-		// } catch (err) {
-		// 	console.error('Failed to register user:', err);
-		// 	toast.error("Server Error");
-		// }
-	};
-	
-	
+  const {
+    isOpen,
+    size,
+    scroll,
+    toggleModal,
+    openModalWithClass,
+  } = useModal();
 
-	const {
-		isOpen,
-		size,
-		// className,
-		scroll,
-		toggleModal,
-		// openModalWithSize,
-		openModalWithClass,
-		// openModalWithScroll,
-	} = useModal()
+  const onChangeMultipleSelection = (selected) => {
+    setMultiSelections(selected);
+  };
 
-	// const filterToggleHandler = () => {
-	// 	setFilterToggle(!filterToggle)
-	// }
-	const onChangeMultipleSelection = (selected: any) => {
-		setMultiSelections(selected)
-	}
+  return (
+    <>
+      <PageBreadcrumb title="Supplier" subName="User" />
 
-	return (
-		<>
-			<PageBreadcrumb title="Supplier" subName="User" />
+      <div className="d-flex justify-content-between" style={{ marginTop: '10px' }}>
+        <div className="d-flex gap-1">
+          {/* <Button className="btn-outline-primary" onClick={() => setFilterToggle(!filterToggle)}>
+            <i className="ri-equalizer-line me-1" /> Filter
+          </Button>
+          <form>
+            <div className="input-group">
+              <input type="search" className="form-control" placeholder="Search..." />
+            </div>
+          </form> */}
+        </div>
+      </div>
 
-			<div
-				className="d-flex justify-content-between"
-				style={{ marginTop: '10px' }}>
-				<div className="d-flex gap-1">
-					{/* <Button className="btn-outline-primary" onClick={filterToggleHandler}>
-						<i className="ri-equalizer-line me-1" /> filter
-					</Button> */}
-					{/* <form>
-						<div className="input-group">
-							<input
-								type="search"
-								className="form-control"
-								placeholder="Search..."
-							/>
-						</div>
-					</form> */}
-				</div>
-			</div>
+      {/* Data table */}
+      <Card className="mt-3">
+        <Card.Header className="d-flex justify-content-between">
+          <div>
+            <h4 className="header-title">Supplier Table</h4>
+          </div>
+          <Button className="btn-outline-dark" onClick={() => setIsModelOpen(true)}>
+            <i className="ri-user-add-line me-1" /> Add Supplier
+          </Button>
+        </Card.Header>
+        <Card.Body>
+          <Table responsive className="mb-0">
+            <thead>
+              <tr>
+                <th scope="col">No</th>
+                <th scope="col">Supplier Name</th>
+                <th scope="col">Contact</th>
+                <th scope="col">Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(allSuppliers || []).map((data, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{data.supplierName}</td>
+                  <td>{data.contact}</td>
+                  <td>{data.email}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
+      {/* Data table */}
+      {/* Modal */}
+      <Modal
+        className="fade"
+        show={isModelOpen}
+        onHide={() => setIsModelOpen(false)}
+        dialogClassName="lg"
+        size={size}
+        scrollable={scroll}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title as="h4">Add Supplier</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="grid-structure">
+            <Row className="mt-2">
+              <Col lg={12}>
+                <Row>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Supplier Name"
+                      type="text"
+                      name="supplierName"
+                      containerClass="mb-3"
+                      onChange={(e) => setSupplierName(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Contact"
+                      type="text"
+                      name="contact"
+                      containerClass="mb-3"
+                      onChange={(e) => setContact(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Email"
+                      type="email"
+                      name="email"
+                      containerClass="mb-3"
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Qty Received Items"
+                      type="text"
+                      name="qtyReceivedItems"
+                      containerClass="mb-3"
+                      onChange={(e) => setQtyReceivedItems(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Qty Returned Items"
+                      type="text"
+                      name="qtyReturnedItems"
+                      containerClass="mb-3"
+                      onChange={(e) => setQtyReturnedItems(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Total Qty"
+                      type="text"
+                      name="totalQty"
+                      containerClass="mb-3"
+                      onChange={(e) => setTotalQty(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Buying Price"
+                      type="text"
+                      name="buyingPrice"
+                      containerClass="mb-3"
+                      onChange={(e) => setBuyingPrice(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Payment"
+                      type="text"
+                      name="payment"
+                      containerClass="mb-3"
+                      onChange={(e) => setPayment(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Status"
+                      type="select"
+                      name="status"
+                      containerClass="mb-3"
+                      className="form-select"
+                      onChange={(e) => setStatus(e.target.value)}
+                    >
+                      <option value="">Select Status</option>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </FormInput>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="light" onClick={() => setIsModelOpen(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleAddSupplier}>
+            {registerLoading ? <Spinner size="sm" /> : 'Save'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      {/* Modal */}
+    </>
+  );
+};
 
-			
-
-			{/* Data table  */}
-			<Card className="mt-3">
-				<Card.Header className="d-flex justify-content-between">
-			
-					<div>
-						<h4 className="header-title">Supplier Tabel</h4>
-					</div>
-					<Button
-						className="btn-outline-dark"
-						onClick={() => setIsModelOpen(true)}>
-						<i className="ri-user-add-line me-1" /> Add Supplier
-					</Button>
-				</Card.Header>
-				<Card.Body>
-					<Table responsive className="mb-0">
-						<thead>
-							<tr>
-								<th scope="col">ID</th>
-								<th scope="col">Cashier Name</th>
-								<th scope="col">Mobile Number</th>
-								<th scope="col">Role</th>
-								<th scope="col">Status</th>
-								<th scope="col">Action</th>
-							</tr>
-						</thead>
-						<tbody>
-							{(AllUser || []).map((data, index) => {
-								return (
-									<tr key={index}>
-										<td>123</td>
-										
-									</tr>
-								)
-							})}
-						</tbody>
-					</Table>
-				</Card.Body>
-			</Card>
-			{/* Data table  */}
-			{/* model  */}
-			<Modal
-				className="fade"
-				show={isModelOpen}
-				onHide={toggleModal}
-				dialogClassName="lg"
-				size={size}
-				scrollable={scroll}>
-				<Modal.Header onHide={toggleStandard} >
-					<Modal.Title as="h4">Add Inventory</Modal.Title>
-				</Modal.Header>
-				<Modal.Body>
-					<div className="grid-structure">
-						<Row className="mt-2">
-							<Col lg={12}>
-								<Row>
-									<Col lg={12}>
-										<FormInput
-											label="Firstname"
-											type="text"
-											name="firstname"
-											containerClass="mb-3"
-											// register={register}
-											key="text"
-											// errors={errors}
-											// control={control}
-											onChange={(e) => setFirstName(e.target.value)}
-										/>
-									</Col>
-									<Col lg={12}>
-										<FormInput
-											label="Lastname"
-											type="text"
-											name="lastname"
-											containerClass="mb-3"
-											// register={register}
-											key="text"
-											// errors={errors}
-											// control={control}
-											onChange={(e) => setLastName(e.target.value)}
-										/>
-									</Col>
-									<Col lg={12}>
-										<FormInput
-											label="Username"
-											type="text"
-											name="username"
-											containerClass="mb-3"
-											// register={register}
-											key="text"
-											// errors={true}
-											// control={control}
-											onChange={(e) => setUsername(e.target.value)}
-										/>
-									</Col>
-									<Col lg={12}>
-										<FormInput
-											label="Password"
-											type="text"
-											name="password"
-											containerClass="mb-3"
-											// register={register}
-											key="text"
-											// errors={true}
-											// control={control}
-											onChange={(e) => setPassword(e.target.value)}
-										/>
-									</Col>
-									<Col lg={12}>
-										<FormInput
-											label="Email"
-											type="email"
-											name="email"
-											containerClass="mb-3"
-											// register={register}
-											key="text"
-											// errors={errors}
-											// control={control}
-											onChange={(e) => setEmail(e.target.value)}
-										/>
-									</Col>
-
-									<Col lg={12}>
-										<FormInput
-											label="Contact"
-											type="text"
-											name="Contact"
-											containerClass="mb-3"
-											// register={register}
-											key="text"
-											// errors={errors}
-											// control={control}
-											onChange={(e) => setContact(e.target.value)}
-										/>
-									</Col>
-									<Col lg={12}>
-										<FormInput
-											name="Role"
-											label="Role"
-											type="select"
-											containerClass="mb-3"
-											className="form-select"
-											// register={register}
-											key="select"
-											// errors={errors}
-											// control={control}
-											onChange={(e) => setType(e.target.value)}
-											>
-											<option defaultValue="selected">user</option>
-											<option>admin</option>
-											<option>manager</option>
-											
-										</FormInput>
-									</Col>
-									<Col lg={12}>
-										<FormInput
-											name="Status"
-											label="Status"
-											type="select"
-											containerClass="mb-3"
-											className="form-select"
-											// register={register}
-											key="select"
-											// errors={errors}
-											// control={control}
-											onChange={(e) => setStatus(e.target.value)}
-											>
-											<option defaultValue="selected">deactive</option>
-											<option>active</option>
-											<option>delete</option>
-											<option>band</option>
-											
-										</FormInput>
-									</Col>
-									
-								</Row>
-							</Col>
-
-							<Col lg={6}></Col>
-						</Row>
-					</div>
-				</Modal.Body>
-				<Modal.Footer>
-					<Button variant="light" onClick={()=>setIsModelOpen(false)}>
-						Close
-					</Button>
-					{/* <Button variant="primary" onClick={toggleStandard}>
-						Print
-					</Button> */}
-					<Button variant="primary" onClick={handleSignUp}>
-						{registerLoading ? (<Spinner className="" size="sm" />) : "Save"}
-					
-					</Button>
-				</Modal.Footer>
-			</Modal>
-			{/* model  */}
-		</>
-	)
-}
-
-export default Supplier
+export default Supplier;

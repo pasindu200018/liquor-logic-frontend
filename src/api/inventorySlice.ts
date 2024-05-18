@@ -1,22 +1,23 @@
-import { INVENTORY_URL } from "../constants/api";
+import { API } from "../constants/api";
 import { apiSlice } from "./apiSlice";
 
 export const inventoryApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getAllInventory: builder.query({
 			query: () => ({
-				url: `${INVENTORY_URL}/getAllUsers`,
+				url: `${API.BASE_URL}${API.PORT.ID}${API.INVENTORY_URL }`,
 				method: 'GET',
 			}),
 		}),
-		getAInventory: builder.query({
-			query: (Id) => ({
-				url: `${INVENTORY_URL}/${Id}`,
+		createAInventory: builder.mutation({
+			query: (data) => ({
+				url: `${API.BASE_URL}${API.PORT.ID}${API.INVENTORY_URL }/save`,
 				method: 'GET',
+				body:data,
 			}),
 		}),
 		
     })
 })
 
-export const { useGetAllInventoryQuery, useGetAInventoryQuery } = inventoryApiSlice
+export const { useGetAllInventoryQuery, useCreateAInventoryMutation } = inventoryApiSlice

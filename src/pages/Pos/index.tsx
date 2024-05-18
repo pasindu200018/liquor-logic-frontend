@@ -22,6 +22,7 @@ import logoDark from '@/assets/images/logo-dark.png'
 import { useRef, useState } from 'react'
 import { useReactToPrint } from 'react-to-print'
 import { useGetAllUserQuery } from '@/api/UserSlice'
+import { useGetAllItemQuery } from '@/api/ItemSlice'
 
 export const options = [
 	{ value: '', label: 'Select' },
@@ -161,14 +162,29 @@ const expandablerecords: ExpandableRecord[] = [
 
 const Pos = () => {
 	// const { data: users, isLoading: usersLoading, error: usersError } =  useGetAllUserQuery()
+	const { data: AllItem, refetch: AllItemReFetch } = useGetAllItemQuery()
 
 	const [isStandardOpen, toggleStandard] = useToggle()
+
+	const [total ,setTotal] = useState(0)
+
+	const [addData, setAddData] = useState([])
+
+	console.log(addData)
 
 	const componentRef = useRef()
 
 	const handlePrint = useReactToPrint({
 		content: () => componentRef.current || null,
 	})
+
+
+
+	const handleAddData = (data) => {
+		setAddData((prevData) => [...prevData, data]);
+		setTotal(total+data.unitPrice)
+	}
+	console.log(total)
 
 	const {
 		// isOpen,
@@ -177,7 +193,7 @@ const Pos = () => {
 		scroll,
 		toggleModal,
 		// openModalWithSize,
-		openModalWithClass,
+		// openModalWithClass,
 		// openModalWithScroll,
 	} = useModal()
 
@@ -236,10 +252,9 @@ const Pos = () => {
 										<Row>
 											<Col lg={6}>
 												<FloatingLabel
-												className='mb-3'
+													className="mb-3"
 													controlId="floatingTextarea2"
 													label="Order Description">
-													
 													<Form.Control
 														as="textarea"
 														placeholder="Leave a comment here"
@@ -288,7 +303,7 @@ const Pos = () => {
 										</div>
 									</Col>
 									<Col lg={12}>
-										<div >
+										<div>
 											<div>
 												<h4 className="header-title">Small table</h4>
 												<p className="text-muted mb-0">
@@ -307,38 +322,17 @@ const Pos = () => {
 														</tr>
 													</thead>
 													<tbody>
-														<tr>
-															<td>Soyameet</td>
-															<td>2</td>
-															<td>
-																<span className="badge bg-primary">4 Pcs</span>
-															</td>
-															<td>Rs 800.00</td>
-														</tr>
-														<tr>
-															<td>Soyameet</td>
-															<td>2</td>
-															<td>
-																<span className="badge bg-primary">4 Pcs</span>
-															</td>
-															<td>Rs 800.00</td>
-														</tr>
-														<tr>
-															<td>Soyameet</td>
-															<td>2</td>
-															<td>
-																<span className="badge bg-primary">4 Pcs</span>
-															</td>
-															<td>Rs 800.00</td>
-														</tr>
-														<tr>
-															<td>Soyameet</td>
-															<td>2</td>
-															<td>
-																<span className="badge bg-primary">4 Pcs</span>
-															</td>
-															<td>Rs 800.00</td>
-														</tr>
+														{(addData || []).map((data, idx) => {
+															
+															return (
+																<tr key={idx}>
+																	<td>{data?.name}</td>
+																	<td>{data?.brand}</td>
+																	<td>{data?.qty}</td>
+																	<td>{data?.unitPrice}</td>
+																</tr>
+															)
+														})}
 													</tbody>
 												</Table>
 											</div>
@@ -348,9 +342,9 @@ const Pos = () => {
 										lg={12}
 										className="mt-3 px-4 d-flex justify-content-between">
 										<h4>Total</h4>
-										<h4>Rs 2000.00</h4>
+										<h4>Rs {total}.00</h4>
 									</Col>
-									<Col lg={4} className="p-4  d-flex justify-content-between">
+									{/* <Col lg={4} className="p-4  d-flex justify-content-between">
 										<h5>Thank You!</h5>
 									</Col>
 									<Col lg={8} className="px-4 mt-3 justify-content-between">
@@ -366,7 +360,7 @@ const Pos = () => {
 											<h5>Change</h5>
 											<h5>Rs 3000.00</h5>
 										</div>
-									</Col>
+									</Col> */}
 								</Row>
 							</Col>
 						</Row>
@@ -427,19 +421,20 @@ const Pos = () => {
 									</tr>
 								</thead>
 								<tbody>
-									{(records || []).map((record, idx) => {
+									{(AllItem || []).map((data, idx) => {
 										return (
 											<tr key={idx}>
-												<td className="table-user">&nbsp;{record.name}</td>
-												<td>{record.accountNo}</td>
-												<td>{record.dob}</td>
-												<td>450.00</td>
-												<td align="center">
-													<Link to="#" className="text-reset fs-16 px-1">
-														{' '}
-														<i className="ri-delete-bin-2-line" />
-													</Link>
-												</td>
+												<td>{data?.name}</td>
+												<td>{data?.brand}</td>
+												<td>{data?.qty}</td>
+												<td>{data?.unitPrice}</td>
+												<Button
+													className="btn-outline"
+													onClick={() => {
+														handleAddData(data)
+													}}>
+													<i className="ri-paypal-line me-1" /> Add
+												</Button>
 											</tr>
 										)
 									})}
@@ -457,23 +452,27 @@ const Pos = () => {
 								<thead>
 									<tr>
 										<th>Product</th>
-										<th>Quantity</th>
+										<th>Product ID</th>
 										<th>Price</th>
-										<th>Amount</th>
-										<th>Action</th>
+										<th>Balance</th>
+										<th className="text-center">Action</th>
 									</tr>
 								</thead>
 								<tbody>
-									{(expandablerecords || []).slice(0, 4).map((record, idx) => {
+									{(addData || []).map((data, idx) => {
 										return (
 											<tr key={idx}>
-												<td>{record.product}</td>
-												<td>{record.price}</td>
-												<td>4</td>
-												<td>${record.Amount}</td>
-												<td>
-													<i className="bi bi-plus-lg"></i>
-												</td>
+												<td>{data?.name}</td>
+												<td>{data?.brand}</td>
+												<td>{data?.qty}</td>
+												<td>{data?.unitPrice}</td>
+												<Button
+													className="btn-outline"
+													onClick={() => {
+														handleAddData(data)
+													}}>
+													<i className="ri-paypal-line me-1" /> Remove
+												</Button>
 											</tr>
 										)
 									})}
@@ -493,7 +492,7 @@ const Pos = () => {
 									className="d-flex justify-content-between align-items-center py-2"
 									lg={4}>
 									<span>Total Cost</span>
-									<span className="fw-bold">800</span>
+									<span className="fw-bold">{total}</span>
 								</Col>
 								<Col
 									className="d-flex justify-content-between align-items-center py-2"
@@ -506,7 +505,7 @@ const Pos = () => {
 								variant="secondary"
 								className="btn-sm mt-2 w-100 p-2  fs-4"
 								onClick={() => setModelOpen(true)}>
-								Grand Total Rs 800.00
+								Grand Total Rs {total}.00
 							</Button>
 						</div>
 					</Col>

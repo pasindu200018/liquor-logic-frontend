@@ -6,13 +6,13 @@ export const supplierApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getAllSupplier: builder.query({
 			query: () => ({
-				url: `${API.BASE_URL}${API.PORT.PO}${API.ITEM_URL }`,
+				url: `${API.BASE_URL}${API.PORT.ID}${API.SUPPLIER_URL}/getAllSuppliers`,
 				method: 'GET',
 			}),
 		}),
 		createASupplier: builder.mutation({
 			query: (data) => ({
-				url: `${API.BASE_URL}${API.PORT.PO}${API.ITEM_URL }/save`,
+				url: `${API.BASE_URL}${API.PORT.ID}${API.SUPPLIER_URL }/save`,
 				method: 'POST',
 				body: data,
 			}),
