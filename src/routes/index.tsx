@@ -25,8 +25,10 @@ const Report = React.lazy(() => import('../pages/Report'))
 const Supplier = React.lazy(() => import('../pages/Supplier'))
 const UserManage = React.lazy(() => import('../pages/Users/Manage'))
 const UserPermission = React.lazy(() => import('../pages/Users/Permission'))
+const Item = React.lazy(() => import('../pages/Item'))
 
 const Pos = React.lazy(() => import('../pages/Pos'))
+
 // new Pages end
 
 // // pages
@@ -174,6 +176,12 @@ const customPagesRoutes = {
 			path: '/report',
 			name: 'Report',
 			element: <Report />,
+			route: PrivateRoute,
+		},
+		{
+			path: '/item',
+			name: 'Item',
+			element: <Item />,
 			route: PrivateRoute,
 		},
 		{

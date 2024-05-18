@@ -1,385 +1,265 @@
-import { FormInput , PageBreadcrumb } from '@/components'
-import { Button, Card, Col, Row, Form, FloatingLabel, Modal } from 'react-bootstrap'
-import { employeeRecords } from './data'
-import { Column } from 'react-table'
-import {  PageSize , Table } from '@/components'
-import { useState } from 'react'
-import { useModal, useToggle } from '@/hooks'
-
-
-type Employee = {
-	id: number
-	age: number
-	name: string
-	company: string
-	phone: string
-	subRows?: Employee[]
-}
-
-
-const columns: ReadonlyArray<Column> = [
-	{
-		Header: 'ID',
-		accessor: 'id',
-		defaultCanSort: true,
-	},
-	{
-		Header: 'Name',
-		accessor: 'name',
-		defaultCanSort: true,
-	},
-	{
-		Header: 'Phone Number',
-		accessor: 'phone',
-		defaultCanSort: false,
-	},
-	{
-		Header: 'Age',
-		accessor: 'age',
-		defaultCanSort: true,
-	},
-	{
-		Header: 'Company',
-		accessor: 'company',
-		defaultCanSort: false,
-	},
-]
-const sizePerPageList: PageSize[] = [
-	{
-		text: '5',
-		value: 5,
-	},
-	{
-		text: '10',
-		value: 10,
-	},
-	{
-		text: '25',
-		value: 25,
-	},
-	{
-		text: 'All',
-		value: employeeRecords.length,
-	},
-]
+import { FormInput, PageBreadcrumb } from '@/components';
+import {
+  Button,
+  Card,
+  Col,
+  Modal,
+  Row,
+  Spinner,
+  Table,
+} from 'react-bootstrap';
+import { useModal, useToggle } from '@/hooks';
+import { toast } from 'react-toastify';
+import { useState } from 'react';
+import { useRegisterMutation } from '@/api/AuthSlice';
+import { useCreateASupplierMutation, useGetAllSupplierQuery } from '@/api/supplierSlice';
 
 const Supplier = () => {
+  const [filterToggle, setFilterToggle] = useState(false);
+  const [multiSelections, setMultiSelections] = useState([]);
+  const [isStandardOpen, toggleStandard] = useToggle();
+  const [isModelOpen, setIsModelOpen] = useState(false);
 
-	const [isStandardOpen, toggleStandard] = useToggle()
+  const [item_id, setItem_id] = useState('177f61b8-3d99-44ff-aef5-2e6603ae039a')
+  const [supplier_name, setSupplierName] = useState('');
+  const [contact, setContact] = useState('');
+  const [email, setEmail] = useState('');
+  const [qty_received_items, setQtyReceivedItems] = useState('');
+  const [qty_returned_items, setQtyReturnedItems] = useState('');
+  const [total_qty, setTotalQty] = useState('');
+  const [buying_price, setBuyingPrice] = useState('');
+  const [payment, setPayment] = useState('');
+  const [status, setStatus] = useState('paid');
+  const [payment_method , setPayment_method] = useState('paid')
 
-	const {
-		isOpen,
-		size,
-		className,
-		scroll,
-		toggleModal,
-		openModalWithSize,
-		openModalWithClass,
-		openModalWithScroll,
-	} = useModal()
+  const [createASupplier, { isLoading: registerLoading, isError: registerError, isSuccess: registerSuccess }] = useCreateASupplierMutation();
+  const { data: allSuppliers, refetch: allSuppliersReFetch } = useGetAllSupplierQuery();
 
-	const [filterToggle , setFilterToggle] = useState(false)
+  const handleAddSupplier = async () => {
+    if (!supplier_name || !contact || !email || !qty_received_items || !qty_returned_items || !total_qty || !buying_price || !payment || !status) {
+      toast.error('All fields are required');
+      return;
+    }
 
-	const filterToggleHandler = () => {
-		setFilterToggle(!filterToggle)
-	}
-	return (
-		<>
-			<PageBreadcrumb title="Supplier" subName="Dashboards" />
+    const supplyData = {
+		item_id,
+	supplier_name,
+      contact,
+      email,
+	  status,
+      qty_received_items,
+      qty_returned_items,
+      total_qty,
+      buying_price,
+      payment,
+	  payment_method
+    };
 
-			<div
-				className="d-flex justify-content-between"
-				style={{ marginTop: '10px' }}>
-				<div className="d-flex gap-1">
-					<Button className="btn-outline-primary" onClick={filterToggleHandler}>
-						<i className="ri-equalizer-line me-1" /> filter
-					</Button>
-					<form>
-						<div className="input-group">
-							<input
-								type="search"
-								className="form-control"
-								placeholder="Search..."
-							/>
-						</div>
-					</form>
-				</div>
-				{/* <div className="d-flex gap-1">
-				<Button variant="danger">
-						<i className="ri-save-fill me-1" /> <span>PDF</span>
-					</Button>
-					<Button variant="danger">
-						<i className="ri-save-fill me-1" /> <span>Print</span>
-					</Button>
-					<Button variant="success">
-						<i className="ri-rocket-line me-1" /> <span>WORD</span>
-					</Button>
-				</div> */}
-			</div>
+    try {
+      const result = await createASupplier(supplyData);
+      if (result.data) {
+        allSuppliersReFetch();
+        setSupplierName('');
+        setContact('');
+        setEmail('');
+        setQtyReceivedItems('');
+        setQtyReturnedItems('');
+        setTotalQty('');
+        setBuyingPrice('');
+        toast.success('Supplier Added');
+        setIsModelOpen(false);
+      } else if (result.error) {
+        toast.error('Server Error');
+      }
+    } catch (err) {
+      console.error('Failed to register supplier:', err);
+      toast.error('Server Error');
+    }
+  };
 
-						{/* filter  */}
-			<Card className={`mt-3 ${!filterToggle ? "d-none" : ""}`}>
-				<Card.Header>
-					<div className="grid-container">
-						<Row className="grid-container">
-							<Col lg={4}>
-								<FormInput
-									label="To Date"
-									type="date"
-									name="date"
-									containerClass="mb-3"
-									// register={register}
-									key="date"
-									// errors={errors}
-									// control={control}
-								/>
-							</Col>
-							<Col lg={4}>
-								<FormInput
-									label="From Date"
-									type="date"
-									name="date"
-									containerClass="mb-3"
-									// register={register}
-									key="date"
-									// errors={errors}
-									// control={control}
-								/>
-							</Col>
+  const {
+    isOpen,
+    size,
+    scroll,
+    toggleModal,
+    openModalWithClass,
+  } = useModal();
 
-							<Col lg={4}>
-								<FormInput
-									label="From Date"
-									type="date"
-									name="date"
-									containerClass="mb-3"
-									// register={register}
-									key="date"
-									// errors={errors}
-									// control={control}
-								/>
-							</Col>
-							<Col lg={6}>
-							<FormInput
-								name="select"
-								label="Cashier"
-								type="select"
-								containerClass="mb-3"
-								className="form-select"
-								// register={register}
-								key="select"
-								// errors={errors}
-								// control={control}
-							>
-								<option defaultValue="selected">1</option>
-								<option>2</option>
-								<option>3</option>
-								<option>4</option>
-								<option>5</option>
-							</FormInput>
-								</Col>
-								<Col lg={6}>
-							<FormInput
-								name="select"
-								label="Input Select"
-								type="select"
-								containerClass="mb-3"
-								className="form-select"
-								// register={register}
-								key="select"
-								// errors={errors}
-								// control={control}
-							>
-								<option defaultValue="selected">1</option>
-								<option>2</option>
-								<option>3</option>
-								<option>4</option>
-								<option>5</option>
-							</FormInput>
-								</Col>
-						</Row>
-					</div>
-				</Card.Header>
-			</Card>
-			{/* filter end */}
+  const onChangeMultipleSelection = (selected) => {
+    setMultiSelections(selected);
+  };
 
-			{/* Data table  */}
-			<div className="mt-3">
-			<Row>
-				<Col>
-					<Card>
-					<Card.Header className="d-flex  justify-content-between">
-								<div>
-									<h4 className="header-title">Pagination &amp; Sort</h4>
-									<p className="text-muted mb-0">
-										A simple example of table with pagination and column sorting
-									</p>
-								</div>
-								<div>
-									<Button className="btn-outline-dark" onClick={() => openModalWithClass('modal-full-width')}>
-										<i className="ri-folder-user-line me-1" /> Add Supplier
-									</Button>
-								</div>
-							</Card.Header>
-						<Card.Body>
-							<Table<Employee>
-								columns={columns}
-								data={employeeRecords}
-								pageSize={5}
-								sizePerPageList={sizePerPageList}
-								isSortable={true}
-								pagination={true}
-							/>
-						</Card.Body>
-					</Card>
-				</Col>
-			</Row>
+  return (
+    <>
+      <PageBreadcrumb title="Supplier" subName="User" />
 
-			</div>
+      <div className="d-flex justify-content-between" style={{ marginTop: '10px' }}>
+        <div className="d-flex gap-1">
+          {/* <Button className="btn-outline-primary" onClick={() => setFilterToggle(!filterToggle)}>
+            <i className="ri-equalizer-line me-1" /> Filter
+          </Button>
+          <form>
+            <div className="input-group">
+              <input type="search" className="form-control" placeholder="Search..." />
+            </div>
+          </form> */}
+        </div>
+      </div>
 
-			{/* model  */}
-			<Modal
-				className="fade"
-				show={isOpen}
-				onHide={toggleModal}
-				dialogClassName="lg"
-				size={size}
-				scrollable={scroll}>
-				<Modal.Header onHide={toggleStandard} closeButton>
-					<Modal.Title as="h4">Add Inventory</Modal.Title>
-				</Modal.Header>
-				<Modal.Body>
-					<div className="grid-structure">
-						<Row className="mt-2">
-							<Col lg={12}>
-								<Row>
-									<Col lg={12}>
-										<FormInput
-											label="Name"
-											type="text"
-											name="text"
-											containerClass="mb-3"
-											// register={register}
-											key="text"
-											// errors={errors}
-											// control={control}
-										/>
-									</Col>
-									<Col lg={12}>
-										<FormInput
-											label="Brand"
-											type="text"
-											name="text"
-											containerClass="mb-3"
-											// register={register}
-											key="text"
-											// errors={errors}
-											// control={control}
-										/>
-									</Col>
-									<Col lg={6}>
-										<FormInput
-											label="QTY"
-											type="Number"
-											name="text"
-											containerClass="mb-3"
-											// register={register}
-											key="text"
-											// errors={errors}
-											// control={control}
-										/>
-									</Col>
-									<Col lg={6}>
-												<FormInput
-													label="Unit Price"
-													type="number"
-													name="text"
-													containerClass="mb-3"
-													// register={register}
-													key="text"
-													// errors={errors}
-													// control={control}
-												/>
-											</Col>
-											<Col lg={6}>
-										<FormInput
-											label="Manufacture Date"
-											type="date"
-											name="text"
-											containerClass="mb-3"
-											// register={register}
-											key="text"
-											// errors={errors}
-											// control={control}
-										/>
-									</Col>
-									<Col lg={6}>
-												<FormInput
-													label="Expire Date"
-													type="date"
-													name="text"
-													containerClass="mb-3"
-													// register={register}
-													key="text"
-													// errors={errors}
-													// control={control}
-												/>
-											</Col>
-									{/* <Col lg={6}>
-										<h5>Brand</h5>
-										<FloatingLabel
-											controlId="floatingSelect"
-											label="Payment Method"
-											className="mb-3">
-											<Form.Select aria-label="Floating label select example">
-												<option defaultValue="selected">Cash</option>
-												<option defaultValue="1">Card</option>
-												
-											</Form.Select>
-										</FloatingLabel>
-									</Col> */}
-									
-									<Col lg={12} className="">
-										<h5>
-											Description <span className="opacity-50">(optional)</span>
-										</h5>
-										<Row>
-											<Col lg={6}>
-												<FloatingLabel
-													controlId="floatingTextarea2"
-													label="Order Description">
-													<Form.Control
-														as="textarea"
-														placeholder="Leave a comment here"
-														style={{ height: '100px' }}
-													/>
-												</FloatingLabel>
-											</Col>
-											
-										</Row>
-									</Col>
-								</Row>
-							</Col>
+      {/* Data table */}
+      <Card className="mt-3">
+        <Card.Header className="d-flex justify-content-between">
+          <div>
+            <h4 className="header-title">Supplier Table</h4>
+          </div>
+          <Button className="btn-outline-dark" onClick={() => setIsModelOpen(true)}>
+            <i className="ri-user-add-line me-1" /> Add Supplier
+          </Button>
+        </Card.Header>
+        <Card.Body>
+          <Table responsive className="mb-0">
+            <thead>
+              <tr>
+                <th scope="col">No</th>
+                <th scope="col">Supplier Name</th>
+                <th scope="col">Contact</th>
+                <th scope="col">Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(allSuppliers || []).map((data, index) => (
+                <tr key={index}>
+                  <td>{index + 1}</td>
+                  <td>{data.supplierName}</td>
+                  <td>{data.contact}</td>
+                  <td>{data.email}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
+      {/* Data table */}
+      {/* Modal */}
+      <Modal
+        className="fade"
+        show={isModelOpen}
+        onHide={() => setIsModelOpen(false)}
+        dialogClassName="lg"
+        size={size}
+        scrollable={scroll}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title as="h4">Add Supplier</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="grid-structure">
+            <Row className="mt-2">
+              <Col lg={12}>
+                <Row>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Supplier Name"
+                      type="text"
+                      name="supplierName"
+                      containerClass="mb-3"
+                      onChange={(e) => setSupplierName(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Contact"
+                      type="text"
+                      name="contact"
+                      containerClass="mb-3"
+                      onChange={(e) => setContact(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Email"
+                      type="email"
+                      name="email"
+                      containerClass="mb-3"
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Qty Received Items"
+                      type="text"
+                      name="qtyReceivedItems"
+                      containerClass="mb-3"
+                      onChange={(e) => setQtyReceivedItems(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Qty Returned Items"
+                      type="text"
+                      name="qtyReturnedItems"
+                      containerClass="mb-3"
+                      onChange={(e) => setQtyReturnedItems(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Total Qty"
+                      type="text"
+                      name="totalQty"
+                      containerClass="mb-3"
+                      onChange={(e) => setTotalQty(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Buying Price"
+                      type="text"
+                      name="buyingPrice"
+                      containerClass="mb-3"
+                      onChange={(e) => setBuyingPrice(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Payment"
+                      type="text"
+                      name="payment"
+                      containerClass="mb-3"
+                      onChange={(e) => setPayment(e.target.value)}
+                    />
+                  </Col>
+                  <Col lg={12}>
+                    <FormInput
+                      label="Status"
+                      type="select"
+                      name="status"
+                      containerClass="mb-3"
+                      className="form-select"
+                      onChange={(e) => setStatus(e.target.value)}
+                    >
+                      <option value="">Select Status</option>
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </FormInput>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="light" onClick={() => setIsModelOpen(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleAddSupplier}>
+            {registerLoading ? <Spinner size="sm" /> : 'Save'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      {/* Modal */}
+    </>
+  );
+};
 
-							<Col lg={6}></Col>
-						</Row>
-					</div>
-				</Modal.Body>
-				<Modal.Footer>
-					<Button variant="light" onClick={toggleStandard}>
-						Close
-					</Button>
-					{/* <Button variant="primary" onClick={toggleStandard}>
-						Print
-					</Button> */}
-					<Button variant="primary" onClick={toggleStandard}>
-						Save
-					</Button>
-				</Modal.Footer>
-			</Modal>
-			{/* model  */}
-		</>
-	)
-}
-
-export default Supplier
+export default Supplier;

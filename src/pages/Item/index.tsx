@@ -18,7 +18,6 @@ import { useModal, useToggle } from '@/hooks'
 
 import { useCreateAItemMutation, useGetAllItemQuery } from '@/api/ItemSlice'
 import { toast } from 'react-toastify'
-import { useGetAllOrderQuery } from '@/api/orderSlice'
 
 type Employee = {
 	id: number
@@ -74,7 +73,7 @@ const sizePerPageList: PageSize[] = [
 		value: employeeRecords.length,
 	},
 ]
-const Order= () => {
+const Item = () => {
 	const [isStandardOpen, toggleStandard] = useToggle()
 	const [isModelOpen, setIsModelOpen] = useState(false)
 	const [filterToggle, setFilterToggle] = useState(false)
@@ -91,7 +90,7 @@ const Order= () => {
 	
 	console.log(name, brand, qty, unitPrice, manufactureDate,expireDate, userId,supplierId,description)
 
-	const { data: AllItem, refetch: AllItemReFetch } =  useGetAllOrderQuery()
+	const { data: AllItem, refetch: AllItemReFetch } = useGetAllItemQuery()
 	const [createAItem, { isLoading : itemLoading, isError :itemError ,isSuccess:itemSuccess }] = useCreateAItemMutation();
 
 
@@ -150,7 +149,7 @@ const Order= () => {
 	}
 	return (
 		<>
-			<PageBreadcrumb title="Order" subName="Dashboards" />
+			<PageBreadcrumb title="Items" subName="Dashboards" />
 
 			<div
 				className="d-flex justify-content-between"
@@ -273,7 +272,7 @@ const Order= () => {
 			<Card className="mt-3">
 				<Card.Header className="d-flex justify-content-between">
 					<div>
-						<h4 className="header-title">Order table</h4>
+						<h4 className="header-title">Item table</h4>
 					</div>
 					<Button
 						className="btn-outline-dark"
@@ -294,14 +293,26 @@ const Order= () => {
 							</tr>
 						</thead>
 						<tbody>
-							{/* {(AllItem || []).map((data, index) => {
+							{(AllItem || []).map((data, index) => {
 								return (
 									<tr key={index}>
-										<td>123</td>
-										
+										<td>{data?.name}</td>
+										<td>{data?.brand}</td>
+										<td>{data?.qty}</td>
+										<td>{data?.unitPrice}</td>
+										<td>
+											{
+												new Date(data?.manufactureDate)
+													.toISOString()
+													.split('T')[0]
+											}
+										</td>
+										<td>
+											{new Date(data?.expireDate).toISOString().split('T')[0]}
+										</td>
 									</tr>
 								)
-							})} */}
+							})}
 						</tbody>
 					</Table>
 				</Card.Body>
@@ -474,4 +485,4 @@ const Order= () => {
 	)
 }
 
-export default Order
+export default Item
