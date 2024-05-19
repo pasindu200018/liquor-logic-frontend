@@ -3,9 +3,11 @@
   "private": false,
   "version": "0.0.0",
   "type": "module",
+  "license": "MIT",
   "scripts": {
     "dev": "yarn && vite --host --open",
     "build": "tsc && vite build",
+    "build2": "set NODE_OPTIONS=--openssl-legacy-provider && craco build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "format": "prettier --write 'src/**/*.{ts,tsx}'"
