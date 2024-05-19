@@ -6,13 +6,13 @@ export const itemApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getAllItem: builder.query({
 			query: () => ({
-				url: `${API.BASE_URL}${API.PORT.PO}${API.ITEM_URL }`,
+				url: `https://664a0d96a300e8795d40d457.mockapi.io/item`,
 				method: 'GET',
 			}),
 		}),
 		createAItem: builder.mutation({
 			query: (data) => ({
-				url: `${API.BASE_URL}${API.PORT.PO}${API.ITEM_URL }/save`,
+				url: `https://664a0d96a300e8795d40d457.mockapi.io/item`,
 				method: 'POST',
 				body: data,
 			}),

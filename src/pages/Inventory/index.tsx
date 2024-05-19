@@ -18,7 +18,8 @@ import { useModal, useToggle } from '@/hooks'
 
 import { useCreateAItemMutation, useGetAllItemQuery } from '@/api/ItemSlice'
 import { toast } from 'react-toastify'
-import { useGetAllInventoryQuery } from '@/api/inventorySlice'
+import { useCreateAInventoryMutation, useGetAllInventoryQuery } from '@/api/inventorySlice'
+import axios from 'axios'
 
 type Employee = {
 	id: number
@@ -114,29 +115,26 @@ const Inventory = () => {
 
 	// const { data: AllItem, refetch: AllItemReFetch } = useGetAllItemQuery()
 	const [
-		createAItem,
+		createAInventory,
 		{ isLoading: itemLoading, isError: itemError, isSuccess: itemSuccess },
-	] = useCreateAItemMutation()
+	] = useCreateAInventoryMutation()
 
 	const handleItemSave = async () => {
-		if (!supplier || !brandId || !qty || !createBy || !updateBy || !status) {
-			toast.error('All fields are required')
-			return
-		}
-
+	
 		const itemData = {
 			supplier,
-			brandId,
-			description,
 			createBy,
-			updateBy,
-			status,
+			brandId,
 			qty,
+			status,
+			description,
+			updateBy,
 		}
 
+		console.log(itemData)
 		try {
-			const result = await createAItem(itemData)
-
+			const result = await axios.post('https://664a0d96a300e8795d40d457.mockapi.io/inventory', itemData);
+			console.log(result)
 			if (result.data) {
 				toast.success('Item Added')
 				setIsModelOpen(false)
@@ -212,12 +210,12 @@ const Inventory = () => {
 					<Table responsive className="mb-0">
 						<thead>
 							<tr>
-								<th scope="col">no</th>
-								<th scope="col">Supplier</th>
-								<th scope="col">CreateBy</th>
-								<th scope="col">updateBy</th>
-								<th scope="col">Description</th>
-								<th scope="col">QTY</th>
+								<th scope="col">customer ID</th>
+								<th scope="col">items</th>
+								<th scope="col">totalPrice</th>
+								<th scope="col">paid</th>
+								<th scope="col">date</th>
+								
 							</tr>
 						</thead>
 						<tbody>

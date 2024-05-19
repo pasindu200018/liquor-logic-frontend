@@ -5,13 +5,13 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getAllInventory: builder.query({
 			query: () => ({
-				url: `${API.BASE_URL}${API.PORT.ID}${API.INVENTORY_URL }`,
+				url: `https://664a0d96a300e8795d40d457.mockapi.io/inventory`,
 				method: 'GET',
 			}),
 		}),
 		createAInventory: builder.mutation({
 			query: (data) => ({
-				url: `${API.BASE_URL}${API.PORT.ID}${API.INVENTORY_URL }/save`,
+				url: `https://664a0d96a300e8795d40d457.mockapi.io/inventory`,
 				method: 'GET',
 				body:data,
 			}),

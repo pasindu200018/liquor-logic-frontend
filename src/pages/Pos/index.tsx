@@ -181,8 +181,9 @@ const Pos = () => {
 
 
 	const handleAddData = (data) => {
+
 		setAddData((prevData) => [...prevData, data]);
-		setTotal(total+data.unitPrice)
+		setTotal(total + Number(data.unitPrice));
 	}
 	console.log(total)
 

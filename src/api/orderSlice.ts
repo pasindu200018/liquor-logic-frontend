@@ -6,13 +6,13 @@ export const orderApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) => ({
         getAllOrder: builder.query({
 			query: () => ({
-				url: `${API.BASE_URL}${API.PORT.PO}${API.ORDER_URL }`,
+				url: `https://664a1aaaa300e8795d40ff3c.mockapi.io/order`,
 				method: 'GET',
 			}),
 		}),
 		createAOrder: builder.mutation({
 			query: (data) => ({
-				url: `${API.BASE_URL}${API.PORT.PO}${API.ORDER_URL }/save`,
+				url: `https://664a1aaaa300e8795d40ff3c.mockapi.io/order`,
 				method: 'POST',
 				body: data,
 			}),

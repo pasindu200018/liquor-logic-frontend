@@ -77,6 +77,7 @@ const Manage = () => {
 				setPassword('');
 				toast.success("User Added");
 				setIsModelOpen(false)
+				
 			} else if (result.error) {
 				toast.error("Server Error");
 			}

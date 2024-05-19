@@ -8,7 +8,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
     endpoints: (builder) =>({
         login: builder.mutation({
             query: (data)=>({
-                url:`${API.BASE_URL}${API.PORT.AD}${API.AUTH_URL }/login`,
+                url:`https://664a1aaaa300e8795d40ff3c.mockapi.io/user`,
                 method: "POST",
                 body: data,
             })
@@ -16,7 +16,7 @@ export const authApiSlice = apiSlice.injectEndpoints({
         
         register: (builder.mutation)({
             query: (data)=>({
-                url:`${API.BASE_URL}${API.PORT.AD}${API.AUTH_URL }/singup`,
+                url:`https://664a1aaaa300e8795d40ff3c.mockapi.io/user`,
                 method: "POST",
                 body: data,
             })

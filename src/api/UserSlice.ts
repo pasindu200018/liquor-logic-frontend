@@ -6,19 +6,19 @@ export const authApiSlice = apiSlice.injectEndpoints({
 
 		getAllUser: builder.query({
 			query: () => ({
-				url: `${API.BASE_URL}${API.PORT.AD}${API.AUTH_URL }/getAllUsers`,
+				url: `https://664a1aaaa300e8795d40ff3c.mockapi.io/user`,
 				method: 'GET',
 			}),
 		}),
 		getAUser: builder.query({
 			query: (ID) => ({
-				url: `${API.BASE_URL}${API.PORT.AD}${API.AUTH_URL }/${ID}`,
+				url: `https://664a1aaaa300e8795d40ff3c.mockapi.io/user`,
 				method: 'GET',
 			}),
 		}),
 		deleteAUser: builder.query({
 			query: (ID) => ({
-				url: `${API.BASE_URL}${API.PORT.AD}${API.AUTH_URL }/${ID}`,
+				url: `https://664a1aaaa300e8795d40ff3c.mockapi.io/user`,
 				method: 'GET',
 			}),
 		}),

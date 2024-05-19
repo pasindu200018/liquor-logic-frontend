@@ -96,7 +96,7 @@ const Item = () => {
 
 	const handleItemSave = async () => {
 
-		if (!name || !brand || !qty || !unitPrice || !manufactureDate || !expireDate || !supplierId || !description) {
+		if (!name || !brand || !qty || !unitPrice || !manufactureDate || !expireDate || !description) {
 			toast.error("All fields are required");
 			return;
 		}
@@ -300,6 +300,12 @@ const Item = () => {
 										<td>{data?.brand}</td>
 										<td>{data?.qty}</td>
 										<td>{data?.unitPrice}</td>
+										<td>{data?.manufactureDate}</td>
+										<td>{data?.expireDate}</td>
+										{/* <td>{data?.name}</td>
+										<td>{data?.brand}</td>
+										<td>{data?.qty}</td>
+										<td>{data?.unitPrice}</td>
 										<td>
 											{
 												new Date(data?.manufactureDate)
@@ -309,7 +315,7 @@ const Item = () => {
 										</td>
 										<td>
 											{new Date(data?.expireDate).toISOString().split('T')[0]}
-										</td>
+										</td> */}
 									</tr>
 								)
 							})}
