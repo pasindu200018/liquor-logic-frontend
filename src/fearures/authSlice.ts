@@ -12,13 +12,14 @@ const authSlice = createSlice({
     reducers: {
         setUser: (state, action) => {
             if(action.payload===null) {
-                localStorage.removeItem("Bearer");
                 localStorage.removeItem("userInfo");
                 state.userInfo = null;
             } else {
-                if (action.payload.token) localStorage.setItem("token", action.payload.token)
+                if (action.payload.token) 
+                    // localStorage.setItem("token", action.payload.token)
 
                     localStorage.setItem("userInfo", JSON.stringify(action.payload.userInfo));
+                    
                     state.userInfo = action.payload;
             }
         },

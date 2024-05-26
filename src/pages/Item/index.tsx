@@ -88,7 +88,7 @@ const Item = () => {
 	const [supplierId, setSupplierId] = useState('')
 	const [description, setDescription] = useState('')
 	
-	console.log(name, brand, qty, unitPrice, manufactureDate,expireDate, userId,supplierId,description)
+	// console.log(name, brand, qty, unitPrice, manufactureDate,expireDate, userId,supplierId,description)
 
 	const { data: AllItem, refetch: AllItemReFetch } = useGetAllItemQuery()
 	const [createAItem, { isLoading : itemLoading, isError :itemError ,isSuccess:itemSuccess }] = useCreateAItemMutation();

@@ -166,11 +166,9 @@ const Pos = () => {
 
 	const [isStandardOpen, toggleStandard] = useToggle()
 
-	const [total ,setTotal] = useState(0)
+	const [total, setTotal] = useState(0)
 
 	const [addData, setAddData] = useState([])
-
-	console.log(addData)
 
 	const componentRef = useRef()
 
@@ -178,13 +176,19 @@ const Pos = () => {
 		content: () => componentRef.current || null,
 	})
 
-
-
 	const handleAddData = (data) => {
-		setAddData((prevData) => [...prevData, data]);
-		setTotal(total+data.unitPrice)
+		setAddData((prevData) => [...prevData, data])
+		setTotal(total + data.unitPrice)
 	}
-	console.log(total)
+
+	const handleRemoveData = (id) => {
+		
+		setTotal((prevTotal) => prevTotal - addData[id].unitPrice);
+
+		setAddData((prevData) => prevData.filter((item, index) => index !== id));
+
+		
+	  };
 
 	const {
 		// isOpen,
@@ -323,7 +327,6 @@ const Pos = () => {
 													</thead>
 													<tbody>
 														{(addData || []).map((data, idx) => {
-															
 															return (
 																<tr key={idx}>
 																	<td>{data?.name}</td>
@@ -469,7 +472,7 @@ const Pos = () => {
 												<Button
 													className="btn-outline"
 													onClick={() => {
-														handleAddData(data)
+														handleRemoveData(idx)
 													}}>
 													<i className="ri-paypal-line me-1" /> Remove
 												</Button>

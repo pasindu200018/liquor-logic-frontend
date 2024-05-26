@@ -59,27 +59,27 @@ const MENU_ITEMS: MenuItemTypes[] = [
 		icon: 'ri-folder-user-line',
 	
 	},
-	{
-		key: 'report',
-		label: 'Report',
-		isTitle: false,
-		url: '/report',
-		icon: 'ri-dashboard-3-line',
+	// {
+	// 	key: 'report',
+	// 	label: 'Report',
+	// 	isTitle: false,
+	// 	url: '/report',
+	// 	icon: 'ri-dashboard-3-line',
 	
-	},
+	// },
 	{
 		key: 'users',
 		label: 'Users',
 		isTitle: false,
 		icon: 'ri-user-line',
 		children: [
-			{
-				key: 'User-permission',
-				label: 'User Permission',
-				url: '/users/permission',
+			// {
+			// 	key: 'User-permission',
+			// 	label: 'User Permission',
+			// 	url: '/users/permission',
 		
-				parentKey: 'Users',
-			},
+			// 	parentKey: 'Users',
+			// },
 			{
 				key: 'User-Manage',
 				label: 'User Manage',

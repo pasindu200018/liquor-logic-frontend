@@ -18,7 +18,7 @@ const BottomLinks = () => {
 	return (
 		<Row>
 			<Col xs={12} className="text-center">
-				<p className="text-dark-emphasis">
+				{/* <p className="text-dark-emphasis">
 					Don't have an account?{' '}
 					<Link
 						to="/auth/register"
@@ -26,7 +26,7 @@ const BottomLinks = () => {
 					>
 						<b>Sign up</b>
 					</Link>
-				</p>
+				</p> */}
 			</Col>
 		</Row>
 	)
