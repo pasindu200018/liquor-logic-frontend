@@ -8,7 +8,7 @@ import {
 	Row,
 	Form,
 	Table,
-	Spinner
+	Spinner,
 } from 'react-bootstrap'
 import { employeeRecords } from './data'
 import { Column } from 'react-table'
@@ -18,6 +18,7 @@ import { useModal, useToggle } from '@/hooks'
 
 import { useCreateAItemMutation, useGetAllItemQuery } from '@/api/ItemSlice'
 import { toast } from 'react-toastify'
+import { useGetAllSupplierQuery } from '@/api/supplierSlice'
 
 type Employee = {
 	id: number
@@ -84,30 +85,51 @@ const Item = () => {
 	const [unitPrice, setUnitPrice] = useState('')
 	const [manufactureDate, setManufactureDate] = useState('')
 	const [expireDate, setExpireDate] = useState('')
-	const [userId, setUserId] = useState('177f61b8-3d99-44ff-aef5-2e6603ae039a')
+	const [userId, setUserId] = useState('0dbb8044-c932-4ee7-aff8-6a5b6786ebbc')
 	const [supplierId, setSupplierId] = useState('')
 	const [description, setDescription] = useState('')
-	
-	// console.log(name, brand, qty, unitPrice, manufactureDate,expireDate, userId,supplierId,description)
+
+	const { data: allSuppliers, refetch: allSuppliersReFetch } =
+		useGetAllSupplierQuery()
+
+	console.log(name, brand, qty, unitPrice, manufactureDate,expireDate, userId,supplierId,description)
 
 	const { data: AllItem, refetch: AllItemReFetch } = useGetAllItemQuery()
-	const [createAItem, { isLoading : itemLoading, isError :itemError ,isSuccess:itemSuccess }] = useCreateAItemMutation();
-
+	const [
+		createAItem,
+		{ isLoading: itemLoading, isError: itemError, isSuccess: itemSuccess },
+	] = useCreateAItemMutation()
 
 	const handleItemSave = async () => {
-
-		if (!name || !brand || !qty || !unitPrice || !manufactureDate || !expireDate || !supplierId || !description) {
-			toast.error("All fields are required");
-			return;
+		if (
+			!name ||
+			!brand ||
+			!qty ||
+			!unitPrice ||
+			!manufactureDate ||
+			!expireDate ||
+			!supplierId ||
+			!description
+		) {
+			toast.error('All fields are required')
+			return
 		}
 
 		const itemData = {
-			name, brand, qty, unitPrice, manufactureDate,expireDate, userId,supplierId,description
-		};
-	
+			name,
+			brand,
+			qty,
+			unitPrice,
+			manufactureDate,
+			expireDate,
+			userId,
+			supplierId,
+			description,
+		}
+
 		try {
 			const result = await createAItem(itemData)
-			
+
 			if (result.data) {
 				setName('')
 				setBrand('')
@@ -117,22 +139,18 @@ const Item = () => {
 				setExpireDate('')
 				setSupplierId('')
 				setDescription('')
-				
 
-				toast.success("Item Added");
+				toast.success('Item Added')
 				setIsModelOpen(false)
 				AllItemReFetch()
 			} else if (result.error) {
-				toast.error("Server Error");
+				toast.error('Server Error')
 			}
 		} catch (err) {
-			console.error('Failed to create item:', err);
-			toast.error("Server Error");
+			console.error('Failed to create item:', err)
+			toast.error('Server Error')
 		}
-	};
-
-
-
+	}
 
 	const {
 		isOpen,
@@ -183,7 +201,7 @@ const Item = () => {
 			</div>
 
 			{/* filter  */}
-			<Card className={`mt-3 ${!filterToggle ? 'd-none' : ''}`}>
+			{/* <Card className={`mt-3 ${!filterToggle ? 'd-none' : ''}`}>
 				<Card.Header>
 					<div className="grid-container">
 						<Row className="grid-container">
@@ -265,7 +283,7 @@ const Item = () => {
 						</Row>
 					</div>
 				</Card.Header>
-			</Card>
+			</Card> */}
 			{/* filter end */}
 
 			{/* Data table  */}
@@ -345,7 +363,7 @@ const Item = () => {
 											key="text"
 											// errors={errors}
 											// control={control}
-											onChange={(e)=>setName(e.target.value)}
+											onChange={(e) => setName(e.target.value)}
 										/>
 									</Col>
 									<Col lg={12}>
@@ -356,13 +374,12 @@ const Item = () => {
 											containerClass="mb-3"
 											className="form-select"
 											key="select"
-											onChange={(e)=>setSupplierId(e.target.value)}
-											>
-											<option >177f61b8-3d99-44ff-aef5-2e6603ae039a</option>
-											<option>177f61b8-3d99-44ff-aef5-2e6603ae039a</option>
-											<option>177f61b8-3d99-44ff-aef5-2e6603ae039a</option>
-											<option>4</option>
-											<option>5</option>
+											onChange={(e) => setSupplierId(e.target.value)}>
+											{(allSuppliers || []).map((data, index) => (
+												<option value={data.id}>{data.supplier_name}</option>
+											))}
+											
+											
 										</FormInput>
 									</Col>
 									<Col lg={12}>
@@ -373,7 +390,7 @@ const Item = () => {
 											containerClass="mb-3"
 											// register={register}
 											key="text"
-											onChange={(e)=>setBrand(e.target.value)}
+											onChange={(e) => setBrand(e.target.value)}
 											// errors={errors}
 											// control={control}
 										/>
@@ -386,7 +403,7 @@ const Item = () => {
 											containerClass="mb-3"
 											// register={register}
 											key="text"
-											onChange={(e)=>setQty(e.target.value)}
+											onChange={(e) => setQty(e.target.value)}
 											// errors={errors}
 											// control={control}
 										/>
@@ -397,7 +414,7 @@ const Item = () => {
 											type="number"
 											name="text"
 											containerClass="mb-3"
-											onChange={(e)=>setUnitPrice(e.target.value)}
+											onChange={(e) => setUnitPrice(e.target.value)}
 											// register={register}
 											key="text"
 											// errors={errors}
@@ -412,7 +429,7 @@ const Item = () => {
 											containerClass="mb-3"
 											// register={register}
 											key="text"
-											onChange={(e)=>setManufactureDate(e.target.value)}
+											onChange={(e) => setManufactureDate(e.target.value)}
 											// errors={errors}
 											// control={control}
 										/>
@@ -427,7 +444,7 @@ const Item = () => {
 											key="text"
 											// errors={errors}
 											// control={control}
-											onChange={(e)=>setExpireDate(e.target.value)}
+											onChange={(e) => setExpireDate(e.target.value)}
 										/>
 									</Col>
 									{/* <Col lg={6}>
@@ -445,17 +462,14 @@ const Item = () => {
 									</Col> */}
 
 									<Col lg={12} className="">
-										<h5>
-											Description 
-										</h5>
+										<h5>Description</h5>
 										<Row>
 											<Col lg={6}>
 												<FloatingLabel
 													controlId="floatingTextarea2"
-													label="Order Description"
-													>
+													label="Order Description">
 													<Form.Control
-														onChange={(e)=>setDescription(e.target.value)}
+														onChange={(e) => setDescription(e.target.value)}
 														as="textarea"
 														placeholder="Leave a comment here"
 														style={{ height: '100px' }}
@@ -473,10 +487,10 @@ const Item = () => {
 				</Modal.Body>
 				<Modal.Footer>
 					<Button variant="light" onClick={() => setIsModelOpen(false)}>
-					Close
+						Close
 					</Button>
 					<Button variant="primary" onClick={handleItemSave}>
-					{itemLoading? (<Spinner className="" size="sm" />) : "Save"}
+						{itemLoading ? <Spinner className="" size="sm" /> : 'Save'}
 					</Button>
 				</Modal.Footer>
 			</Modal>

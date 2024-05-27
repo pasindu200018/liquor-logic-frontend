@@ -12,7 +12,7 @@ export const inventoryApiSlice = apiSlice.injectEndpoints({
 		createAInventory: builder.mutation({
 			query: (data) => ({
 				url: `${API.BASE_URL}${API.PORT.ID}${API.INVENTORY_URL }/save`,
-				method: 'GET',
+				method: 'POST',
 				body:data,
 			}),
 		}),

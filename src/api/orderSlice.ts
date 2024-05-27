@@ -12,7 +12,7 @@ export const orderApiSlice = apiSlice.injectEndpoints({
 		}),
 		createAOrder: builder.mutation({
 			query: (data) => ({
-				url: `${API.BASE_URL}${API.PORT.PO}${API.ORDER_URL }/save`,
+				url: `${API.BASE_URL}${API.PORT.PO}${API.ORDER_URL }`,
 				method: 'POST',
 				body: data,
 			}),

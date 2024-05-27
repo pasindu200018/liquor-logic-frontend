@@ -18,7 +18,11 @@ import { useModal, useToggle } from '@/hooks'
 
 import { useCreateAItemMutation, useGetAllItemQuery } from '@/api/ItemSlice'
 import { toast } from 'react-toastify'
-import { useGetAllInventoryQuery } from '@/api/inventorySlice'
+import {
+	useCreateAInventoryMutation,
+	useGetAllInventoryQuery,
+} from '@/api/inventorySlice'
+import { useGetAllSupplierQuery } from '@/api/supplierSlice'
 
 type Employee = {
 	id: number
@@ -91,51 +95,58 @@ const Inventory = () => {
 
 	const [supplier, setSupplier] = useState('')
 	const [brandId, setBrandId] = useState('')
-	const [description, setDescription] = useState('')
+	const [discription, setDescription] = useState('')
 	const [createBy, setCreateBy] = useState('')
 	const [updateBy, setUpdateBy] = useState('')
 	const [status, setStatus] = useState('')
-	const [qty, setQty] = useState('')
+	const [image, setImage] = useState('')
+	const [QTY, setQty] = useState('')
 
-	console.log(
-		name,
-		brand,
-		qty,
-		unitPrice,
-		manufactureDate,
-		expireDate,
-		userId,
-		supplierId,
-		description
-	)
+	const { data: allSuppliers, refetch: allSuppliersReFetch } =
+		useGetAllSupplierQuery()
+	const { data: AllItemm, refetch: AllItemReFetch } = useGetAllItemQuery()
+
+	// console.log(
+	// 	name,
+	// 	brand,
+	// 	QTY,
+	// 	unitPrice,
+	// 	manufactureDate,
+	// 	expireDate,
+	// 	userId,
+	// 	supplierId,
+	// 	discription
+	// )
 
 	const { data: AllItem, refetch: AllInventoryReFetch } =
 		useGetAllInventoryQuery()
 
+	console.log(AllItemm)
+
 	// const { data: AllItem, refetch: AllItemReFetch } = useGetAllItemQuery()
 	const [
-		createAItem,
+		createAInventory,
 		{ isLoading: itemLoading, isError: itemError, isSuccess: itemSuccess },
-	] = useCreateAItemMutation()
+	] = useCreateAInventoryMutation()
 
 	const handleItemSave = async () => {
-		if (!supplier || !brandId || !qty || !createBy || !updateBy || !status) {
-			toast.error('All fields are required')
-			return
-		}
+		// if (!supplier || !brandId || !QTY || !createBy || !updateBy ) {
+		// 	toast.error('All fields are required')
+		// 	return
+		// }
 
 		const itemData = {
-			supplier,
+			supplierId,
 			brandId,
-			description,
+			discription,
 			createBy,
 			updateBy,
-			status,
-			qty,
+			image,
+			QTY,
 		}
 
 		try {
-			const result = await createAItem(itemData)
+			const result = await createAInventory(itemData)
 
 			if (result.data) {
 				toast.success('Item Added')
@@ -194,8 +205,6 @@ const Inventory = () => {
 				</div>
 			</div>
 
-	
-
 			{/* Data table  */}
 			<Card className="mt-3">
 				<Card.Header className="d-flex justify-content-between">
@@ -213,10 +222,10 @@ const Inventory = () => {
 						<thead>
 							<tr>
 								<th scope="col">no</th>
-								<th scope="col">Supplier</th>
+								<th scope="col">ItemID</th>
 								<th scope="col">CreateBy</th>
 								<th scope="col">updateBy</th>
-								<th scope="col">Description</th>
+								{/* <th scope="col">Description</th> */}
 								<th scope="col">QTY</th>
 							</tr>
 						</thead>
@@ -225,10 +234,10 @@ const Inventory = () => {
 								return (
 									<tr key={index}>
 										<td>{index + 1}</td>
-										<td>{data?.supplier}</td>
+										<td>{data?.brandId}</td>
 										<td>{data?.createBy}</td>
 										<td>{data?.updateBy}</td>
-										<td>{data?.description}</td>
+										{/* <td>{data?.description}</td> */}
 										<td>{data?.qty}</td>
 									</tr>
 								)
@@ -256,74 +265,105 @@ const Inventory = () => {
 							<Col lg={12}>
 								<Row>
 									<Col lg={12}>
-									<FormInput
-									label="Brand"
+										{/* <FormInput
+									label="Supplier"
 									type="text"
 									name="text"
 									containerClass="mb-3"
 									key="text"
 									onChange={(e) => setSupplier(e.target.value)}
-								/>
+								/> */}
+										<Col lg={12}>
+											<FormInput
+												name="select"
+												label="Suppler "
+												type="select"
+												containerClass="mb-3"
+												className="form-select"
+												key="select"
+												onChange={(e) => setSupplierId(e.target.value)}>
+												{(allSuppliers || []).map((data, index) => (
+													<option value={data.id}>{data.supplier_name}</option>
+												))}
+											</FormInput>
+										</Col>
 									</Col>
 									<Col lg={12}>
-									<FormInput
-									label="brandId"
-									type="text"
-									name="text"
-									containerClass="mb-3"
-									key="text"
-									onChange={(e) => setBrandId(e.target.value)}
-								/>
+										{/* <FormInput
+											label="Item Id"
+											type="text"
+											name="text"
+											containerClass="mb-3"
+											key="text"
+											onChange={(e) => setBrandId(e.target.value)}
+										/> */}
+										<FormInput
+											name="select"
+											label="Item Id"
+											type="select"
+											containerClass="mb-3"
+											className="form-select"
+											key="select"
+											onChange={(e) => setBrandId(e.target.value)}>
+											{(AllItemm || []).map((data, index) => (
+												<option value={data.itemId}>{data.name}</option>
+											))}
+										</FormInput>
 									</Col>
 									<Col lg={12}>
-									<FormInput
-									label="description"
-									type="text"
-									name="text"
-									containerClass="mb-3"
-									key="text"
-									onChange={(e) => setDescription(e.target.value)}
-								/>
+										<FormInput
+											label="Description"
+											type="text"
+											name="text"
+											containerClass="mb-3"
+											key="text"
+											onChange={(e) => setDescription(e.target.value)}
+										/>
 									</Col>
 									<Col lg={12}>
-									<FormInput
-									label="Create By"
-									type="text"
-									name="text"
-									containerClass="mb-3"
-									key="text"
-									onChange={(e) => setCreateBy(e.target.value)}
-								/>
-									
+										<FormInput
+											label="Image URL"
+											type="text"
+											name="text"
+											containerClass="mb-3"
+											key="text"
+											onChange={(e) => setImage(e.target.value)}
+										/>
 									</Col>
 									<Col lg={12}>
-									<FormInput
-									label="updateBy"
-									type="text"
-									name="text"
-									containerClass="mb-3"
-									key="text"
-									onChange={(e) => setUpdateBy(e.target.value)}
-								/>
+										<FormInput
+											label="Create By"
+											type="text"
+											name="text"
+											containerClass="mb-3"
+											key="text"
+											onChange={(e) => setCreateBy(e.target.value)}
+										/>
 									</Col>
 									<Col lg={12}>
-									<FormInput
-									label="qty"
-									type="text"
-									name="text"
-									containerClass="mb-3"
-									key="text"
-									onChange={(e) => setQty(e.target.value)}
-								/>
+										<FormInput
+											label="UpdateBy"
+											type="text"
+											name="text"
+											containerClass="mb-3"
+											key="text"
+											onChange={(e) => setUpdateBy(e.target.value)}
+										/>
 									</Col>
-								
+									<Col lg={12}>
+										<FormInput
+											label="QTY"
+											type="number"
+											name="text"
+											containerClass="mb-3"
+											key="text"
+											onChange={(e) => setQty(e.target.value)}
+										/>
+									</Col>
 								</Row>
 							</Col>
-
-							
 						</Row>
 					</div>
-					
 				</Modal.Body>
 				<Modal.Footer>
 					<Button variant="light" onClick={() => setIsModelOpen(false)}>

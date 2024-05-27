@@ -89,11 +89,13 @@ const Order= () => {
 	const [supplierId, setSupplierId] = useState('')
 	const [description, setDescription] = useState('')
 	
-	console.log(name, brand, qty, unitPrice, manufactureDate,expireDate, userId,supplierId,description)
+	
 
 	const { data: AllItem, refetch: AllItemReFetch } =  useGetAllOrderQuery()
-	const [createAItem, { isLoading : itemLoading, isError :itemError ,isSuccess:itemSuccess }] = useCreateAItemMutation();
 
+	const [createAItem, { isLoading : itemLoading, isError :itemError ,isSuccess:itemSuccess }] = useCreateAItemMutation();
+	console.log(AllItem)
+	
 
 	const handleItemSave = async () => {
 
@@ -275,33 +277,32 @@ const Order= () => {
 					<div>
 						<h4 className="header-title">Order table</h4>
 					</div>
-					<Button
+					{/* <Button
 						className="btn-outline-dark"
 						onClick={() => setIsModelOpen(true)}>
 						<i className="ri-user-add-line me-1" /> Add Item
-					</Button>
+					</Button> */}
 				</Card.Header>
 				<Card.Body>
 					<Table responsive className="mb-0">
 						<thead>
 							<tr>
-								<th scope="col">Name</th>
-								<th scope="col">Brand</th>
-								<th scope="col">QTY</th>
-								<th scope="col">Unit Price</th>
-								<th scope="col">M Date</th>
-								<th scope="col">E Date</th>
+								<th scope="col">Order Id</th>
+								<th scope="col">Items</th>
+								<th scope="col">Create Date</th>
+								
 							</tr>
 						</thead>
 						<tbody>
-							{/* {(AllItem || []).map((data, index) => {
+							{(AllItem || []).map((data, index) => {
 								return (
 									<tr key={index}>
-										<td>123</td>
-										
+										<td>{data.placeOrderId}</td>
+										<td>{data.items.length}</td>
+										<td>{data.createDate}</td>
 									</tr>
 								)
-							})} */}
+							})}
 						</tbody>
 					</Table>
 				</Card.Body>
