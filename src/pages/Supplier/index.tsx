@@ -198,7 +198,7 @@ const Supplier = () => {
 									<Col lg={12}>
 										<FormInput
 											label="Qty Received Items"
-											type="text"
+											type="number"
 											name="qtyReceivedItems"
 											containerClass="mb-3"
 											onChange={(e) => setQtyReceivedItems(e.target.value)}
@@ -207,7 +207,7 @@ const Supplier = () => {
 									<Col lg={12}>
 										<FormInput
 											label="Qty Returned Items"
-											type="text"
+											type="number"
 											name="qtyReturnedItems"
 											containerClass="mb-3"
 											onChange={(e) => setQtyReturnedItems(e.target.value)}
@@ -216,7 +216,7 @@ const Supplier = () => {
 									<Col lg={12}>
 										<FormInput
 											label="Total Qty"
-											type="text"
+											type="number"
 											name="totalQty"
 											containerClass="mb-3"
 											onChange={(e) => setTotalQty(e.target.value)}
@@ -225,7 +225,7 @@ const Supplier = () => {
 									<Col lg={12}>
 										<FormInput
 											label="Buying Price"
-											type="text"
+											type="number"
 											name="buyingPrice"
 											containerClass="mb-3"
 											onChange={(e) => setBuyingPrice(e.target.value)}
@@ -234,13 +234,13 @@ const Supplier = () => {
 									<Col lg={12}>
 										<FormInput
 											label="Payment"
-											type="text"
+											type="number"
 											name="payment"
 											containerClass="mb-3"
 											onChange={(e) => setPayment(e.target.value)}
 										/>
 									</Col>
-									<Col lg={12}>
+									{/* <Col lg={12}>
 										<FormInput
 											label="Status"
 											type="select"
@@ -252,7 +252,7 @@ const Supplier = () => {
 											<option value="active">Active</option>
 											<option value="inactive">Inactive</option>
 										</FormInput>
-									</Col>
+									</Col> */}
 								</Row>
 							</Col>
 						</Row>
